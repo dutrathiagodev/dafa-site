@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { services, whatsappUrl, type ServiceIcon } from "@/content/site";
 import { SdCard } from "./ui/sd-card";
-import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 const icons: Record<ServiceIcon, LucideIcon> = {
   video: Video,
@@ -37,56 +37,48 @@ function layoutPos(el: HTMLElement, ancestor: HTMLElement) {
 }
 
 /**
- * Serviços: os cards saem voando de dentro do cartão de memória
- * conforme o scroll (desktop). No celular, entrada simples em sequência.
+ * Serviços: quando a seção aparece, os cards saem voando de dentro do
+ * cartão de memória (uma vez, sem travar o scroll). O cartão inclina com
+ * o mouse e, clicado, recolhe e solta os cards de novo.
  */
 export default function Services() {
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const replay = useRef<() => void>(() => {});
 
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
-      const mm = gsap.matchMedia();
+      const sd = stage.current!.querySelector<HTMLElement>("[data-sd]")!;
+      const cards = gsap.utils.toArray<HTMLElement>("[data-service]");
+      const delta = (el: HTMLElement) => {
+        const a = layoutPos(sd, stage.current!);
+        const b = layoutPos(el, stage.current!);
+        return { x: a.x - b.x, y: a.y - b.y };
+      };
 
-      mm.add("(min-width: 1024px) and (min-height: 700px)", () => {
-        const sd = stage.current!.querySelector<HTMLElement>("[data-sd]")!;
-        const cards = gsap.utils.toArray<HTMLElement>("[data-service]");
-        const delta = (el: HTMLElement) => {
-          const a = layoutPos(sd, stage.current!);
-          const b = layoutPos(el, stage.current!);
-          return { x: a.x - b.x, y: a.y - b.y };
-        };
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: stage.current,
-            start: "top top",
-            end: "+=170%",
-            pin: true,
-            scrub: 0.8,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        tl.fromTo(
-          sd,
-          { rotateY: -38, rotateX: 18, scale: 0.78, y: 40 },
-          { rotateY: 0, rotateX: 0, scale: 1, y: 0, duration: 0.3, ease: "power2.out" },
-        )
-          .to(
-            "[data-sd] [data-sd-pin]",
-            { fill: "#5b5bff", duration: 0.12, stagger: 0.025 },
-            0.12,
+      const burst = () =>
+        gsap
+          .timeline()
+          .fromTo(
+            sd,
+            { rotateY: -38, rotateX: 18, scale: 0.78 },
+            { rotateY: 0, rotateX: 0, scale: 1, duration: 0.7, ease: "power3.out" },
           )
-          .to("[data-sd-glow]", { opacity: 1, scale: 1.15, duration: 0.2 }, 0.2)
+          .fromTo(
+            "[data-sd] [data-sd-pin]",
+            { fill: "#d9b45a" },
+            { fill: "#5b5bff", duration: 0.2, stagger: 0.05 },
+            0.2,
+          )
+          .fromTo("[data-sd-glow]", { opacity: 0.3 }, { opacity: 1, duration: 0.4 }, 0.3)
           .fromTo(
             cards,
             {
               x: (_i: number, el: HTMLElement) => delta(el).x,
               y: (_i: number, el: HTMLElement) => delta(el).y,
-              scale: 0.18,
-              rotation: () => gsap.utils.random(-35, 35),
+              scale: 0.15,
+              rotation: () => gsap.utils.random(-40, 40),
               autoAlpha: 0,
             },
             {
@@ -95,37 +87,53 @@ export default function Services() {
               scale: 1,
               rotation: 0,
               autoAlpha: 1,
-              duration: 0.5,
-              ease: "power3.out",
-              stagger: 0.06,
+              duration: 1.1,
+              ease: "expo.out",
+              stagger: 0.07,
             },
-            0.3,
+            0.55,
           )
-          .to("[data-sd]", { y: 10, scale: 0.94, duration: 0.3 }, 0.55)
-          .to("[data-sd-glow]", { opacity: 0.45, duration: 0.3 }, 0.6);
+          .to("[data-sd-glow]", { opacity: 0.45, duration: 0.6 }, 1.4);
+
+      gsap.set(cards, { autoAlpha: 0 });
+      ScrollTrigger.create({
+        trigger: stage.current,
+        start: "top 60%",
+        once: true,
+        onEnter: () => burst(),
       });
 
-      mm.add("(max-width: 1023px), (max-height: 699px)", () => {
-        gsap.from("[data-service]", {
-          autoAlpha: 0,
-          y: 50,
-          scale: 0.9,
-          rotation: (i: number) => (i % 2 ? 6 : -6),
-          duration: 0.9,
-          ease: "back.out(1.4)",
-          stagger: 0.08,
-          scrollTrigger: { trigger: "[data-services-grid]", start: "top 85%" },
-        });
-        gsap.from("[data-sd]", {
-          rotateY: -40,
-          scale: 0.8,
-          duration: 1.2,
-          ease: "power3.out",
-          scrollTrigger: { trigger: "[data-sd]", start: "top 90%" },
-        });
-      });
+      // Clicar no cartão: recolhe os cards e solta de novo
+      replay.current = () =>
+        gsap
+          .timeline()
+          .to(cards, {
+            x: (_i: number, el: HTMLElement) => delta(el).x,
+            y: (_i: number, el: HTMLElement) => delta(el).y,
+            scale: 0.15,
+            autoAlpha: 0,
+            duration: 0.45,
+            ease: "power3.in",
+            stagger: 0.03,
+          })
+          .add(() => {
+            burst();
+          });
 
-      return () => mm.revert();
+      // Inclinação 3D do cartão seguindo o mouse
+      const rx = gsap.quickTo(sd, "rotateX", { duration: 0.6, ease: "power3.out" });
+      const ry = gsap.quickTo(sd, "rotateY", { duration: 0.6, ease: "power3.out" });
+      const onMove = (e: PointerEvent) => {
+        if (e.pointerType !== "mouse") return;
+        const r = sd.getBoundingClientRect();
+        const nx = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+        const ny = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+        ry(gsap.utils.clamp(-30, 30, nx * 60));
+        rx(gsap.utils.clamp(-25, 25, -ny * 50));
+      };
+      const sec = root.current!;
+      sec.addEventListener("pointermove", onMove);
+      return () => sec.removeEventListener("pointermove", onMove);
     },
     { scope: root },
   );
@@ -139,7 +147,7 @@ export default function Services() {
     >
       <div
         ref={stage}
-        className="relative mx-auto grid max-w-[1320px] items-center gap-12 px-4 py-24 sm:px-8 lg:min-h-[100svh] lg:grid-cols-[0.85fr_1.15fr] lg:py-16"
+        className="relative mx-auto grid max-w-[1320px] items-center gap-12 px-4 py-24 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:py-32"
       >
         <div className="relative">
           <p className="text-xs tracking-[0.3em] text-muted uppercase">
@@ -164,10 +172,19 @@ export default function Services() {
               data-sd-glow
               className="absolute top-1/2 left-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-electric/50 opacity-40 blur-[70px] lg:left-[calc(2.5rem+80px)]"
             />
-            <div data-sd className="relative w-32 will-change-transform sm:w-40">
+            <button
+              type="button"
+              data-sd
+              onClick={() => replay.current()}
+              aria-label="Soltar os serviços do cartão de novo"
+              className="relative w-32 cursor-pointer rounded-xl will-change-transform sm:w-40"
+            >
               <SdCard className="h-auto w-full drop-shadow-[0_20px_40px_rgba(16,16,236,.55)]" />
-            </div>
+            </button>
           </div>
+          <p className="mt-4 text-center text-xs text-muted/70 lg:pl-10 lg:text-left">
+            Clique no cartão
+          </p>
         </div>
 
         <ul
