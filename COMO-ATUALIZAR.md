@@ -5,18 +5,16 @@ Todo o texto, contato, serviço e projeto fica em **um arquivo só**:
 
 ## Adicionar um projeto novo (vídeo)
 
-1. Prepare o vídeo para a web (vertical 720×1280 ou horizontal 1280×720) e gere:
-   - `public/media/videos/<nome>.mp4` — vídeo completo, com som;
-   - `public/media/videos/<nome>-preview.mp4` — trecho de ~6 s, sem som, leve (≈ 200 KB);
-   - `public/media/posters/<nome>.webp` — capa (um frame do vídeo).
-
-   Com o ffmpeg instalado:
+1. Gere os arquivos do vídeo com o script (precisa do `ffmpeg` instalado):
 
    ```bash
-   ffmpeg -i original.mp4 -vf "scale=-2:1280" -c:v libx264 -crf 26 -preset slow -c:a aac -b:a 96k -movflags +faststart public/media/videos/nome.mp4
-   ffmpeg -ss 2 -t 6 -i original.mp4 -vf "scale=-2:640,fps=24" -an -c:v libx264 -crf 30 -movflags +faststart public/media/videos/nome-preview.mp4
-   ffmpeg -ss 3 -i original.mp4 -frames:v 1 -vf "scale=-2:1280" -c:v libwebp -q:v 80 public/media/posters/nome.webp
+   ./scripts/preparar-video.sh caminho/original.mp4 nome 2
    ```
+
+   O último número é o segundo onde começa a prévia. O script cria, já em alta qualidade:
+   - `public/media/videos/<nome>.mp4`: vídeo completo, com som (lado maior 1280 px);
+   - `public/media/videos/<nome>-preview.mp4`: 8 s sem som, que toca no portfólio;
+   - `public/media/posters/<nome>.webp`: capa (lado maior 1920 px).
 
 2. Em `src/content/site.ts`, adicione um item na lista `projects`:
 
@@ -36,8 +34,25 @@ Todo o texto, contato, serviço e projeto fica em **um arquivo só**:
 
 ## Adicionar uma foto
 
-Salve em `public/media/img/` (WebP, ~900 px de largura) e use
+Salve em `public/media/img/` (WebP com qualidade 90, pelo menos 900 px de largura) e use
 `media: { type: "image", src: "/media/img/arquivo.webp", width: 900, height: 1200 }`.
+
+## Trocar a foto da equipe
+
+1. Salve a foto em `public/media/team/` (ex.: `daniel.webp`, quadrada ou vertical, 640 px ou mais).
+2. Em `src/content/site.ts`, na lista `team`, preencha `photo: "/media/team/daniel.webp"`.
+
+O cartão mostra a foto em 4:5. Sem `photo`, aparece a inicial do nome.
+
+## Foto de produto com fundo recortado (opcional)
+
+A foto precisa ter **fundo preto puro, sem brilho em volta** (o brilho azul é feito no site). Depois rode:
+
+```bash
+python3 scripts/recortar-fundo.py original.jpg public/media/camera/arquivo.webp 1400
+```
+
+O objeto fica 100% opaco, com as cores originais, e só o fundo some. Confira o resultado sobre um fundo colorido antes de publicar.
 
 ## Trocar textos e contatos
 
@@ -50,8 +65,12 @@ Salve em `public/media/img/` (WebP, ~900 px de largura) e use
 - Não inventar resultados, depoimentos ou métricas.
 - Ideias não executadas só entram identificadas como **conceito**.
 - Não cortar vídeos verticais para caber em blocos horizontais.
+- Qualidade de imagem é prioridade: não reduzir cor nem deixar foto de produto transparente.
 
 ## Publicar
+
+Trabalhe numa branch. Ao entrar na `main`, o GitHub publica sozinho no GitHub Pages
+(veja `docs/codebase/deploy.md`).
 
 Depois de contratar o domínio, defina a variável `NEXT_PUBLIC_SITE_URL`
 (ex.: `https://www.seudominio.com.br`) na hospedagem. Ela é usada no SEO

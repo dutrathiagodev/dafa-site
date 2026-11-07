@@ -27,8 +27,8 @@ export function structuredData() {
       { "@type": "AdministrativeArea", name: "Norte Pioneiro do Paraná" },
     ],
     founder: [
-      { "@type": "Person", name: "Daniel" },
-      { "@type": "Person", name: "Fabi" },
+      { "@type": "Person", name: "Daniel", jobTitle: "CEO" },
+      { "@type": "Person", name: "Fabiano", jobTitle: "Partner" },
     ],
     knowsAbout: services.map((s) => s.title),
     hasOfferCatalog: {

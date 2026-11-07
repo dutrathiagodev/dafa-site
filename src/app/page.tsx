@@ -1,18 +1,18 @@
-import SmoothScroll from "@/components/SmoothScroll";
-import Reveals from "@/components/Reveals";
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import Showreel from "@/components/Showreel";
-import Portfolio from "@/components/Portfolio";
-import ProcessSequence from "@/components/ProcessSequence";
-import About from "@/components/About";
-import Services from "@/components/Services";
-import Workflow from "@/components/Workflow";
-import GrowthChart from "@/components/GrowthChart";
-import Contact from "@/components/Contact";
-import Footer from "@/components/Footer";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
-import { MediaModalProvider } from "@/components/VideoModal";
+import SmoothScroll from "@/components/motion/SmoothScroll";
+import Reveals from "@/components/motion/Reveals";
+import Header from "@/components/layout/Header";
+import Hero from "@/components/sections/Hero";
+import Showreel from "@/components/sections/Showreel";
+import Portfolio from "@/components/sections/Portfolio";
+import ProcessSequence from "@/components/sections/ProcessSequence";
+import About from "@/components/sections/About";
+import Services from "@/components/sections/Services";
+import Workflow from "@/components/sections/Workflow";
+import GrowthChart from "@/components/sections/GrowthChart";
+import Contact from "@/components/sections/Contact";
+import Footer from "@/components/layout/Footer";
+import WhatsAppFloat from "@/components/layout/WhatsAppFloat";
+import { MediaModalProvider } from "@/components/media/VideoModal";
 
 export default function Home() {
   return (

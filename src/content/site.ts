@@ -23,7 +23,7 @@ export const emailUrl = `mailto:${contact.email}`;
 export const brand = {
   name: "DAFA",
   tagline: "Gerenciamento de Conteúdo",
-  title: "DAFA — Gerenciamento de Conteúdo | Portfólio",
+  title: "DAFA | Produtora Audiovisual e Gestão de Conteúdo",
   description:
     "Produção audiovisual, gerenciamento de conteúdo e tráfego pago em Santo Antônio da Platina e região. Conheça os projetos da DAFA.",
   pitch:
@@ -198,6 +198,28 @@ export const showreel = {
   preview: "/media/videos/dafa-chamada-preview.mp4",
   poster: "/media/posters/dafa-chamada.webp",
 };
+
+export type TeamMember = {
+  name: string;
+  /** Cargo em inglês, como a DAFA usa. */
+  role: string;
+  bio?: string[];
+  /** Caminho em /public (ex.: "/media/team/daniel.webp"). Sem foto, mostra a inicial. */
+  photo?: string;
+};
+
+export const team: TeamMember[] = [
+  {
+    name: "Daniel",
+    role: "CEO",
+    bio: [
+      "Daniel atua com produção audiovisual, criação e gerenciamento de conteúdo e tráfego pago. Seu trabalho une olhar criativo e estratégia para transformar ideias em vídeos, imagens e conteúdos que comuniquem a identidade e o valor de cada negócio.",
+      "Com atuação em Santo Antônio da Platina e região, desenvolve projetos para empresas de diferentes segmentos, cuidando tanto da qualidade visual quanto da mensagem que cada conteúdo precisa transmitir.",
+    ],
+    photo: "/media/team/daniel.webp",
+  },
+  { name: "Fabiano", role: "Partner", photo: "/media/team/fabiano.webp" },
+];
 
 export const faq = [
   {
