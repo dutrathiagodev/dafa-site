@@ -12,7 +12,6 @@ import GrowthChart from "@/components/GrowthChart";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
-import CursorFollower from "@/components/CursorFollower";
 import { MediaModalProvider } from "@/components/VideoModal";
 
 export default function Home() {
@@ -40,7 +39,6 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppFloat />
-      <CursorFollower />
     </MediaModalProvider>
   );
 }

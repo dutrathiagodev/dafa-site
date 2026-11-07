@@ -76,7 +76,6 @@ function ProjectCard({ p, index }: { p: Project; index: number }) {
         onClick={open}
         onPointerMove={tilt}
         onPointerLeave={untilt}
-        data-cursor={p.media.type === "video" ? "Assistir" : "Ver foto"}
         className="relative block aspect-[9/16] w-full overflow-hidden rounded-2xl border border-white/[.08] bg-surface text-left transition-[border-color,box-shadow] duration-500 hover:border-electric/60 hover:shadow-[0_20px_80px_-20px_rgba(51,51,255,.6)]"
         aria-label={`Abrir ${p.media.type === "video" ? "vídeo" : "foto"}: ${p.client}`}
       >
