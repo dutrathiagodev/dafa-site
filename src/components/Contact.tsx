@@ -41,7 +41,7 @@ export default function Contact() {
       aria-labelledby="contato-title"
       className="relative px-4 pt-12 pb-24 sm:px-8"
     >
-      <div className="grain relative isolate mx-auto max-w-[1320px] overflow-hidden rounded-[32px] border border-white/10 px-5 py-20 text-center sm:px-12 sm:py-28">
+      <div className="relative isolate mx-auto max-w-[1320px] overflow-hidden rounded-[32px] border border-white/10 px-5 py-20 text-center sm:px-12 sm:py-28">
         <LightArcs />
         <p data-reveal className="relative text-xs tracking-[0.3em] text-muted uppercase">
           05 / Contato
