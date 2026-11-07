@@ -1,5 +1,6 @@
 "use client";
 
+import { asset } from "@/lib/asset";
 import { useRef } from "react";
 import { Play } from "lucide-react";
 import { showreel } from "@/content/site";
@@ -46,8 +47,8 @@ export default function Showreel() {
         className="relative mx-auto aspect-video max-w-[1200px] overflow-hidden rounded-3xl border border-white/10 bg-navy shadow-[0_40px_120px_-30px_rgba(16,16,236,.7)] will-change-transform"
       >
         <video
-          src={showreel.preview}
-          poster={showreel.poster}
+          src={asset(showreel.preview)}
+          poster={asset(showreel.poster)}
           muted
           loop
           autoPlay

@@ -1,5 +1,6 @@
 "use client";
 
+import { asset } from "@/lib/asset";
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { ArrowUpRight, Expand, Play } from "lucide-react";
@@ -59,8 +60,8 @@ function ProjectCard({ p, index }: { p: Project; index: number }) {
         {p.media.type === "video" ? (
           <video
             ref={videoRef}
-            src={p.media.preview}
-            poster={p.media.poster}
+            src={asset(p.media.preview)}
+            poster={asset(p.media.poster)}
             muted
             loop
             playsInline
@@ -70,7 +71,7 @@ function ProjectCard({ p, index }: { p: Project; index: number }) {
           />
         ) : (
           <Image
-            src={p.media.src}
+            src={asset(p.media.src)}
             alt={`${p.client} — ${p.segment}`}
             fill
             sizes="(max-width: 768px) 50vw, 33vw"

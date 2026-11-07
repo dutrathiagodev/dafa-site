@@ -1,5 +1,6 @@
 "use client";
 
+import { asset } from "@/lib/asset";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
@@ -34,7 +35,7 @@ export default function Header() {
       <div className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between px-4 sm:px-8">
         <a href="#inicio" aria-label="DAFA — início" className="shrink-0">
           <Image
-            src="/media/img/logo-dafa-crop.png"
+            src={asset("/media/img/logo-dafa-crop.png")}
             alt="DAFA — Gerenciamento de Conteúdo"
             width={1391}
             height={341}

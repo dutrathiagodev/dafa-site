@@ -1,3 +1,4 @@
+import { asset } from "@/lib/asset";
 import Image from "next/image";
 import {
   brand,
@@ -13,7 +14,7 @@ export default function Footer() {
       <div className="mx-auto flex max-w-[1320px] flex-col gap-10 md:flex-row md:items-end md:justify-between">
         <div>
           <Image
-            src="/media/img/logo-dafa-crop.png"
+            src={asset("/media/img/logo-dafa-crop.png")}
             alt="DAFA — Gerenciamento de Conteúdo"
             width={1391}
             height={341}

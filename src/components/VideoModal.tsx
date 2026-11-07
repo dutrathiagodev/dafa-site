@@ -1,5 +1,6 @@
 "use client";
 
+import { asset } from "@/lib/asset";
 import {
   createContext,
   useCallback,
@@ -83,8 +84,8 @@ export function MediaModalProvider({ children }: { children: ReactNode }) {
               {media.kind === "video" ? (
                 <video
                   key={media.src}
-                  src={media.src}
-                  poster={media.poster}
+                  src={asset(media.src)}
+                  poster={media.poster && asset(media.poster)}
                   controls
                   autoPlay
                   playsInline
@@ -93,7 +94,7 @@ export function MediaModalProvider({ children }: { children: ReactNode }) {
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={media.src}
+                  src={asset(media.src)}
                   alt={media.title}
                   className="h-full w-full object-contain"
                 />

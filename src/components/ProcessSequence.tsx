@@ -1,12 +1,13 @@
 "use client";
 
+import { asset } from "@/lib/asset";
 import { useRef } from "react";
 import { processSteps } from "@/content/site";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 const FRAME_COUNT = 138;
 const frameSrc = (i: number) =>
-  `/media/sequence/f${String(i + 1).padStart(3, "0")}.webp`;
+  asset(`/media/sequence/f${String(i + 1).padStart(3, "0")}.webp`);
 
 /**
  * Vídeo que avança com o scroll: os frames do projeto imobiliário
