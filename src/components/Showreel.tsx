@@ -71,6 +71,7 @@ export default function Showreel() {
           }
           className="group absolute inset-0 flex flex-col items-center justify-center gap-4 text-white"
           aria-label="Assistir ao vídeo de apresentação com som"
+          data-cursor="Assistir"
         >
           <span className="relative grid size-20 place-items-center rounded-full bg-white/15 backdrop-blur-md transition-transform duration-500 group-hover:scale-110 sm:size-24">
             <span className="absolute inset-0 animate-ping rounded-full bg-electric/40 [animation-duration:2.4s]" />
