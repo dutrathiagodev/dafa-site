@@ -1,5 +1,6 @@
 import DafaWorkflowBento from "./ui/dafa-workflow-bento";
 
+import EditFrame from "./ui/edit-frame";
 export default function Workflow() {
   return (
     <section
@@ -13,15 +14,16 @@ export default function Workflow() {
         >
           Como funciona
         </span>
-        <h2
-          id="como-funciona-title"
-          data-reveal
-          className="mt-5 text-[clamp(2rem,4.8vw,3.5rem)] leading-[1.02] font-bold tracking-[-0.035em]"
-        >
-          Ideias organizadas,
-          <br />
-          <span className="text-muted/60">conteúdo no ar.</span>
-        </h2>
+        <EditFrame label="Texto · Título" center>
+          <h2
+            id="como-funciona-title"
+            className="mt-5 text-[clamp(2rem,4.8vw,3.5rem)] leading-[1.02] font-bold tracking-[-0.035em]"
+          >
+            Ideias organizadas,
+            <br />
+            <span className="text-muted/60">conteúdo no ar.</span>
+          </h2>
+        </EditFrame>
       </div>
       <DafaWorkflowBento />
     </section>

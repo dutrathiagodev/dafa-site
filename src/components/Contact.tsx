@@ -10,6 +10,7 @@ import {
   whatsappUrl,
 } from "@/content/site";
 
+import EditFrame from "./ui/edit-frame";
 export default function Contact() {
   const channels = [
     {
@@ -46,15 +47,16 @@ export default function Contact() {
         <p data-reveal className="relative text-xs tracking-[0.3em] text-muted uppercase">
           05 / Contato
         </p>
-        <h2
-          id="contato-title"
-          data-reveal
-          className="relative mx-auto mt-5 max-w-4xl text-[clamp(2.4rem,7vw,5.5rem)] leading-[0.95] font-bold tracking-[-0.045em]"
-        >
-          Vamos dar{" "}
-          <span className="text-gradient font-display italic">direção</span>{" "}
-          ao seu conteúdo?
-        </h2>
+        <EditFrame label="Texto · Título" center>
+          <h2
+            id="contato-title"
+            className="relative mx-auto mt-5 max-w-4xl text-[clamp(2.4rem,7vw,5.5rem)] leading-[0.95] font-bold tracking-[-0.045em]"
+          >
+            Vamos dar{" "}
+            <span className="text-gradient font-display italic">direção</span>{" "}
+            ao seu conteúdo?
+          </h2>
+        </EditFrame>
         <p data-reveal className="relative mx-auto mt-6 max-w-xl text-lg text-muted">
           {brand.pitch}
         </p>

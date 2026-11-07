@@ -1,6 +1,7 @@
 import { Camera } from "lucide-react";
 import { contact } from "@/content/site";
 
+import EditFrame from "./ui/edit-frame";
 export default function About() {
   return (
     <section
@@ -13,30 +14,33 @@ export default function About() {
           <p data-reveal className="text-xs tracking-[0.3em] text-muted uppercase">
             03 / Quem somos
           </p>
-          <h2
-            id="sobre-title"
-            data-reveal
-            className="mt-4 text-[clamp(2.2rem,5vw,4.25rem)] leading-[0.95] font-bold tracking-[-0.04em]"
-          >
-            A DAFA é{" "}
-            <span className="font-display text-[#9a9cff] italic">
-              Daniel e Fabi.
-            </span>
-          </h2>
-          <div data-reveal className="mt-8 space-y-5 text-lg leading-relaxed text-muted">
-            <p>
-              Somos uma empresa de gerenciamento de conteúdo de{" "}
-              {contact.city} – {contact.state}. Trabalhamos com produção
-              audiovisual, fotografia, criação e gerenciamento de conteúdo e
-              tráfego pago, unindo criatividade e estratégia na comunicação das
-              empresas.
-            </p>
-            <p>
-              Nosso objetivo é ajudar cada negócio a mostrar seu valor com
-              conteúdos bem planejados e bem executados. Os dois “A” do nosso
-              símbolo representam essa parceria.
-            </p>
-          </div>
+          <EditFrame label="Texto · Título">
+            <h2
+              id="sobre-title"
+              className="mt-4 text-[clamp(2.2rem,5vw,4.25rem)] leading-[0.95] font-bold tracking-[-0.04em]"
+            >
+              A DAFA é{" "}
+              <span className="font-display text-[#9a9cff] italic">
+                Daniel e Fabi.
+              </span>
+            </h2>
+          </EditFrame>
+          <EditFrame label="Texto · Parágrafo" className="mt-10">
+            <div className="space-y-5 text-lg leading-relaxed text-muted">
+              <p>
+                Somos uma empresa de gerenciamento de conteúdo de{" "}
+                {contact.city} – {contact.state}. Trabalhamos com produção
+                audiovisual, fotografia, criação e gerenciamento de conteúdo e
+                tráfego pago, unindo criatividade e estratégia na comunicação das
+                empresas.
+              </p>
+              <p>
+                Nosso objetivo é ajudar cada negócio a mostrar seu valor com
+                conteúdos bem planejados e bem executados. Os dois “A” do nosso
+                símbolo representam essa parceria.
+              </p>
+            </div>
+          </EditFrame>
         </div>
 
         <article
