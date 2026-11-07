@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { services, whatsappUrl, type ServiceIcon } from "@/content/site";
-import { asset } from "@/lib/asset";
+import LoopVideo from "@/components/media/LoopVideo";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 import { Accent, SectionHeading } from "@/components/ui/section-heading";
@@ -39,9 +39,9 @@ function layoutPos(el: HTMLElement, ancestor: HTMLElement) {
 }
 
 /**
- * Serviços: quando a seção aparece, os cards saem voando de dentro do
- * cartão de memória (uma vez, sem travar o scroll). O cartão inclina com
- * o mouse e, clicado, recolhe e solta os cards de novo.
+ * Serviços: em loop, os cards saem voando de dentro do cartão de memória
+ * (vídeo real do cartão girando), ficam na tela e voltam (sem travar o scroll).
+ * O cartão inclina com o mouse e, clicado, recolhe e solta os cards de novo.
  */
 export default function Services() {
   const root = useRef<HTMLElement>(null);
@@ -185,16 +185,14 @@ export default function Services() {
               data-sd
               onClick={() => replay.current()}
               aria-label="Soltar os serviços do cartão de novo"
-              className="relative w-48 cursor-pointer will-change-transform sm:w-60"
+              className="relative w-56 cursor-pointer will-change-transform sm:w-72"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={asset("/media/camera/cartao-sd-dafa.webp")}
-                alt="Cartão de memória com fita escrita DAFA conteúdos"
-                width={900}
-                height={900}
-                draggable={false}
-                className="h-auto w-full"
+              <LoopVideo
+                src="/media/camera/cartao-sd.mp4"
+                poster="/media/camera/cartao-sd-capa.webp"
+                label="Cartão de memória com fita escrita DAFA conteúdos"
+                fadeEdges
+                className="pointer-events-none aspect-square h-auto w-full"
               />
             </button>
           </div>
