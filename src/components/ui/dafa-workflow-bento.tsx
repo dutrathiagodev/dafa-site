@@ -237,10 +237,12 @@ function FlowCard({ reduced, inView }: { reduced: boolean; inView: boolean }) {
           <rect width="640" height="178" fill="url(#dbGlow)" />
           {[-62, -38, -14, 14, 38, 62].map((a, i) => {
             const r = (d: number) => (d * Math.PI) / 180;
+            const px = (d: number) => (320 + Math.sin(r(d)) * 260).toFixed(1);
+            const py = (d: number) => (110 - Math.cos(r(d)) * 260).toFixed(1);
             return (
               <path
                 key={i}
-                d={`M320,110 L${320 + Math.sin(r(a)) * 260},${110 - Math.cos(r(a)) * 260} L${320 + Math.sin(r(a + 7)) * 260},${110 - Math.cos(r(a + 7)) * 260}Z`}
+                d={`M320,110 L${px(a)},${py(a)} L${px(a + 7)},${py(a + 7)}Z`}
                 fill="url(#dbRays)"
                 opacity=".45"
               />

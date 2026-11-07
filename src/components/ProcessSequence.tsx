@@ -117,7 +117,7 @@ export default function ProcessSequence() {
     >
       <div
         data-pin
-        className="relative flex h-[100svh] items-center overflow-hidden"
+        className="relative flex h-[100svh] items-start overflow-hidden pt-20 lg:items-center lg:pt-0"
       >
         <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_50%,rgba(16,16,236,.28),transparent_70%)]" />
 

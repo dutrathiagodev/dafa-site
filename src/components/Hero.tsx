@@ -148,25 +148,19 @@ export default function Hero() {
         </p>
 
         <h1 className="mt-7 text-[clamp(3rem,11vw,8.5rem)] leading-[0.92] font-bold tracking-[-0.045em]">
-          <span className="sr-only">
-            DAFA — Gerenciamento de Conteúdo. Conteúdo com direção.
-          </span>
-          <span aria-hidden="true" className="block">
-            {words.map((w) => (
-              <span
-                key={w}
-                className="mr-[0.22em] inline-block overflow-hidden pb-[0.06em] align-bottom last:mr-0"
-              >
-                <span data-hero-word className="inline-block">
-                  {w}
+          <span className="block">
+            {words.map((w, i) => (
+              <span key={w}>
+                {i > 0 && " "}
+                <span className="inline-block overflow-hidden pb-[0.06em] align-bottom">
+                  <span data-hero-word className="inline-block">
+                    {w}
+                  </span>
                 </span>
               </span>
             ))}
-          </span>
-          <span
-            aria-hidden="true"
-            className="block overflow-hidden pb-[0.12em]"
-          >
+          </span>{" "}
+          <span className="block overflow-hidden pb-[0.12em]">
             <span
               data-hero-word
               className="text-gradient inline-block pr-[0.08em] font-display font-bold italic tracking-[-0.02em]"

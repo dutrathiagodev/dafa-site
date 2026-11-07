@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ArrowUpRight, Expand, Play } from "lucide-react";
 import { projects, type Project } from "@/content/site";
 import { useMediaModal } from "./VideoModal";
-import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 function ProjectCard({ p, index }: { p: Project; index: number }) {
   const openModal = useMediaModal();
@@ -148,14 +148,23 @@ export default function Portfolio() {
           );
         });
       });
-      gsap.from("[data-project]", {
-        autoAlpha: 0,
-        y: 80,
-        scale: 0.94,
-        duration: 1.1,
-        ease: "power3.out",
-        stagger: 0.08,
-        scrollTrigger: { trigger: "[data-grid]", start: "top 80%" },
+      // Só os cards da grade visível (mobile ou desktop) entram animados.
+      const cards = gsap.utils
+        .toArray<HTMLElement>("[data-project]")
+        .filter((el) => el.offsetParent !== null);
+      gsap.set(cards, { autoAlpha: 0, y: 80, scale: 0.94 });
+      ScrollTrigger.batch(cards, {
+        start: "top 92%",
+        once: true,
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.1,
+            ease: "power3.out",
+            stagger: 0.08,
+          }),
       });
       return () => mm.revert();
     },
