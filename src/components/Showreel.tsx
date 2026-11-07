@@ -66,7 +66,7 @@ export default function Showreel() {
       id="showreel"
       ref={root}
       aria-label="Vídeo de apresentação da DAFA"
-      className="relative px-4 pb-24 sm:px-8 [perspective:1400px]"
+      className="relative px-4 pt-16 pb-24 sm:px-8 sm:pt-28 [perspective:1400px]"
     >
       <div
         data-reel-frame
@@ -82,7 +82,6 @@ export default function Showreel() {
           playsInline
           preload="metadata"
           onClick={toggleSound}
-          data-cursor={muted ? "Ouvir" : "Silenciar"}
           aria-label={`${showreel.title}. Clique para ${muted ? "ligar" : "desligar"} o som.`}
           className="absolute inset-0 h-full w-full cursor-pointer object-cover"
         />
@@ -93,10 +92,9 @@ export default function Showreel() {
           onClick={toggleSound}
           aria-pressed={!muted}
           aria-label={muted ? "Ligar o som do vídeo" : "Desligar o som do vídeo"}
-          className="absolute right-4 bottom-4 inline-flex items-center gap-2 rounded-full bg-black/45 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition hover:bg-electric sm:right-6 sm:bottom-6"
+          className="absolute right-4 bottom-4 grid size-10 place-items-center rounded-full border border-white/15 bg-black/35 text-white/90 backdrop-blur-md transition hover:border-white/40 hover:bg-black/55 sm:right-6 sm:bottom-6"
         >
           {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-          {muted ? "Ativar som" : "Som ligado"}
         </button>
       </div>
     </section>
