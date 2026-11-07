@@ -1,208 +1,221 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/asset";
-import { useRef } from "react";
 import { processSteps } from "@/content/site";
-import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
 
 const FRAME_COUNT = 138;
+const FPS = 12;
 const frameSrc = (i: number) =>
   asset(`/media/sequence/f${String(i + 1).padStart(3, "0")}.webp`);
+const stepOf = (frame: number) =>
+  Math.min(
+    processSteps.length - 1,
+    Math.floor((frame / FRAME_COUNT) * processSteps.length),
+  );
+const firstFrameOf = (step: number) =>
+  Math.round((step / processSteps.length) * FRAME_COUNT);
 
 /**
- * Vídeo que avança com o scroll: os frames do projeto imobiliário
- * são desenhados num <canvas> (bem mais fluido que mexer no currentTime).
+ * Processo interativo (sem travar o scroll):
+ * - mouse sobre o vídeo / arrastar o dedo → o vídeo acompanha;
+ * - abas das etapas pulam para o trecho;
+ * - barra de tempo (também pelo teclado);
+ * - parado, o vídeo toca sozinho.
+ * Os frames são desenhados num <canvas>.
  */
 export default function ProcessSequence() {
   const root = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rangeRef = useRef<HTMLInputElement>(null);
+  const images = useRef<HTMLImageElement[]>([]);
+  const state = useRef({ frame: 0, lastDrawn: -1, lastInteract: 0, visible: false });
+  const [step, setStep] = useState(0);
 
-  useGSAP(
-    () => {
-      const canvas = canvasRef.current!;
-      const ctx = canvas.getContext("2d")!;
-      const images: HTMLImageElement[] = [];
-      const state = { frame: 0 };
-      let lastDrawn = -1;
+  const draw = useCallback(() => {
+    const s = state.current;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    let i = Math.round(s.frame);
+    while (i > 0 && !images.current[i]?.complete) i--;
+    const img = images.current[i];
+    if (!img?.complete || !img.naturalWidth || i === s.lastDrawn) return;
+    s.lastDrawn = i;
+    ctx.drawImage(img, 0, 0, 540, 960);
+    if (rangeRef.current) rangeRef.current.value = String(Math.round(s.frame));
+    setStep(stepOf(s.frame));
+  }, []);
 
-      const draw = () => {
-        const target = Math.round(state.frame);
-        // usa o frame carregado mais próximo
-        let i = target;
-        while (i > 0 && !images[i]?.complete) i--;
-        const img = images[i];
-        if (!img?.complete || !img.naturalWidth || i === lastDrawn) return;
-        lastDrawn = i;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
-
-      // Carrega o primeiro frame já; o resto quando a seção se aproxima.
-      const load = (i: number) => {
-        if (images[i]) return;
-        const img = new Image();
-        img.decoding = "async";
-        img.src = frameSrc(i);
-        img.onload = () => {
-          if (i === 0 || i === Math.round(state.frame)) {
-            lastDrawn = -1;
-            draw();
-          }
-        };
-        images[i] = img;
-      };
-      load(0);
-      ScrollTrigger.create({
-        trigger: root.current,
-        start: "top 250%",
-        once: true,
-        onEnter: () => {
-          for (let i = 1; i < FRAME_COUNT; i++) load(i);
-        },
+  const goTo = useCallback(
+    (frame: number, animate = true) => {
+      const s = state.current;
+      s.lastInteract = performance.now();
+      gsap.to(s, {
+        frame: Math.max(0, Math.min(FRAME_COUNT - 1, frame)),
+        duration: animate && !prefersReducedMotion() ? 0.6 : 0,
+        ease: "power2.out",
+        overwrite: true,
+        onUpdate: draw,
       });
-
-      const steps = gsap.utils.toArray<HTMLElement>("[data-step]");
-      const dots = gsap.utils.toArray<HTMLElement>("[data-step-dot]");
-      const setActive = (n: number) => {
-        steps.forEach((s, i) => s.toggleAttribute("data-active", i === n));
-        dots.forEach((d, i) => d.toggleAttribute("data-active", i <= n));
-      };
-      setActive(0);
-
-      if (prefersReducedMotion()) {
-        state.frame = FRAME_COUNT * 0.55;
-        load(Math.round(state.frame));
-        return;
-      }
-
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 0px)", () => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: root.current,
-            start: "top top",
-            end: "+=320%",
-            pin: "[data-pin]",
-            scrub: 0.6,
-            onUpdate: (self) =>
-              setActive(
-                Math.min(
-                  processSteps.length - 1,
-                  Math.floor(self.progress * processSteps.length),
-                ),
-              ),
-          },
-        });
-        tl.to(state, {
-          frame: FRAME_COUNT - 1,
-          ease: "none",
-          onUpdate: draw,
-        }).fromTo(
-          "[data-seq-frame]",
-          { scale: 0.92, rotate: -2 },
-          { scale: 1, rotate: 0, ease: "none" },
-          0,
-        );
-        tl.to("[data-seq-progress]", { scaleY: 1, ease: "none" }, 0);
-      });
-      return () => mm.revert();
     },
-    { scope: root },
+    [draw],
   );
+
+  useEffect(() => {
+    const s = state.current;
+    const load = (i: number) => {
+      if (images.current[i]) return;
+      const img = new Image();
+      img.decoding = "async";
+      img.src = frameSrc(i);
+      img.onload = () => {
+        if (i === 0 || i === Math.round(s.frame)) {
+          s.lastDrawn = -1;
+          draw();
+        }
+      };
+      images.current[i] = img;
+    };
+    load(0);
+
+    // Carrega o resto quando a seção se aproxima; toca sozinho quando visível
+    const io = new IntersectionObserver(
+      ([e]) => {
+        s.visible = e.isIntersecting;
+        if (e.isIntersecting) for (let i = 1; i < FRAME_COUNT; i++) load(i);
+      },
+      { rootMargin: "60% 0px" },
+    );
+    io.observe(root.current!);
+
+    const reduce = prefersReducedMotion();
+    let acc = 0;
+    const tick = (_t: number, dtMs: number) => {
+      if (reduce || !s.visible) return;
+      if (performance.now() - s.lastInteract < 2500) return;
+      acc += dtMs / 1000;
+      if (acc < 1 / FPS) return;
+      acc = 0;
+      s.frame = (Math.round(s.frame) + 1) % FRAME_COUNT;
+      draw();
+    };
+    gsap.ticker.add(tick);
+    return () => {
+      io.disconnect();
+      gsap.ticker.remove(tick);
+    };
+  }, [draw]);
+
+  // Mouse/toque sobre o vídeo
+  const scrubFrom = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    const s = state.current;
+    s.lastInteract = performance.now();
+    gsap.to(s, {
+      frame: ratio * (FRAME_COUNT - 1),
+      duration: 0.35,
+      ease: "power2.out",
+      overwrite: true,
+      onUpdate: draw,
+    });
+  };
 
   return (
     <section
       id="processo"
       ref={root}
       aria-labelledby="processo-title"
-      className="relative"
+      className="relative overflow-hidden py-24 sm:py-32"
     >
-      <div
-        data-pin
-        className="relative flex h-[100svh] items-start overflow-hidden pt-20 lg:items-center lg:pt-0"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_50%,rgba(16,16,236,.28),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(50%_50%_at_75%_50%,rgba(16,16,236,.22),transparent_70%)]" />
 
-        <div className="relative mx-auto grid w-full max-w-[1320px] items-center gap-8 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
-          {/* Texto */}
-          <div className="relative z-10 order-2 lg:order-1">
-            <p className="text-xs tracking-[0.3em] text-muted uppercase">
-              02 / Processo
-            </p>
-            <h2
-              id="processo-title"
-              className="mt-3 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.98] font-bold tracking-[-0.035em]"
-            >
-              Da ideia ao{" "}
-              <span className="font-display text-[#9a9cff] italic">
-                conteúdo pronto.
-              </span>
-            </h2>
+      <div className="relative mx-auto grid max-w-[1320px] items-center gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_auto]">
+        <div>
+          <p data-reveal className="text-xs tracking-[0.3em] text-muted uppercase">
+            02 / Processo
+          </p>
+          <h2
+            id="processo-title"
+            data-reveal
+            className="mt-3 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.98] font-bold tracking-[-0.035em]"
+          >
+            Da ideia ao{" "}
+            <span className="font-display text-[#9a9cff] italic">conteúdo pronto.</span>
+          </h2>
 
-            <ol className="mt-6 grid gap-1 sm:mt-8">
-              {processSteps.map((s, i) => (
-                <li
-                  key={s.title}
-                  data-step
-                  className="group/step grid grid-cols-[2.25rem_1fr] items-baseline rounded-xl px-1 py-1.5 text-muted/50 transition-colors duration-500 data-active:text-ink sm:py-2"
-                >
-                  <span className="font-mono text-xs">0{i + 1}</span>
-                  <div>
-                    <p className="text-lg font-semibold sm:text-2xl">
-                      {s.title}
-                    </p>
-                    <p className="hidden max-h-0 overflow-hidden text-sm text-muted opacity-0 transition-all duration-500 group-data-active/step:max-h-16 group-data-active/step:opacity-100 sm:block">
-                      {s.text}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <p className="mt-5 max-w-sm text-xs text-muted/70">
-              Cada projeto pode envolver só parte dessas etapas, conforme o
-              escopo combinado.
-            </p>
+          <div
+            role="tablist"
+            aria-label="Etapas do processo"
+            className="mt-8 flex flex-wrap gap-2"
+          >
+            {processSteps.map((s, i) => (
+              <button
+                key={s.title}
+                role="tab"
+                type="button"
+                aria-selected={step === i}
+                onClick={() => goTo(firstFrameOf(i))}
+                className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                  step === i
+                    ? "border-electric bg-electric text-white shadow-[0_0_24px_-4px_#3333ff]"
+                    : "border-white/12 text-muted hover:border-white/35 hover:text-ink"
+                }`}
+              >
+                <span className="mr-1.5 font-mono text-[11px] opacity-70">0{i + 1}</span>
+                {s.title}
+              </button>
+            ))}
           </div>
 
-          {/* Canvas com o vídeo */}
-          <div className="order-1 flex justify-center lg:order-2">
-            <div
-              data-seq-frame
-              className="relative aspect-[9/16] h-[42svh] overflow-hidden rounded-[28px] border border-white/10 bg-navy shadow-[0_40px_120px_-30px_rgba(16,16,236,.8)] will-change-transform sm:h-[60svh] lg:h-[78svh]"
-            >
-              <canvas
-                ref={canvasRef}
-                width={540}
-                height={960}
-                className="h-full w-full"
-                role="img"
-                aria-label="Trecho de um vídeo imobiliário produzido pela DAFA: do terreno ao projeto finalizado"
-              />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-xs text-white/80">
-                Projeto: lançamento imobiliário
-              </div>
+          <p
+            key={step}
+            role="tabpanel"
+            aria-live="polite"
+            className="animate-focus mt-6 min-h-[3.5rem] max-w-md text-lg leading-relaxed text-ink/90"
+          >
+            {processSteps[step].text}
+          </p>
+          <p className="mt-6 max-w-sm text-xs text-muted/70">
+            Cada projeto pode envolver só parte dessas etapas, conforme o escopo
+            combinado.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative aspect-[9/16] h-[62svh] max-h-[680px] min-h-[380px] overflow-hidden rounded-[28px] border border-white/10 bg-navy shadow-[0_40px_120px_-30px_rgba(16,16,236,.8)]">
+            <canvas
+              ref={canvasRef}
+              width={540}
+              height={960}
+              onPointerMove={(e) => {
+                if (e.pointerType === "mouse" || e.buttons) scrubFrom(e);
+              }}
+              onPointerDown={scrubFrom}
+              className="h-full w-full cursor-ew-resize touch-pan-y"
+              role="img"
+              aria-label="Vídeo de um lançamento imobiliário produzido pela DAFA. Passe o mouse ou arraste para avançar."
+            />
+            <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between p-4 font-mono text-[10px] tracking-[0.18em] text-white/70 uppercase">
+              <span>Projeto: lançamento imobiliário</span>
+            </div>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-center text-xs text-white/75">
+              ← passe o mouse ou arraste →
             </div>
           </div>
-
-          {/* Barra de progresso */}
-          <div className="order-3 hidden items-center justify-end gap-5 lg:flex">
-            <div className="relative h-[46svh] w-px bg-white/10">
-              <div
-                data-seq-progress
-                className="absolute inset-0 origin-top scale-y-0 bg-gradient-to-b from-electric to-[#9a9cff] shadow-[0_0_14px_#3333ff]"
-              />
-            </div>
-            <ul className="flex h-[46svh] flex-col justify-between">
-              {processSteps.map((s) => (
-                <li
-                  key={s.title}
-                  data-step-dot
-                  className="flex items-center gap-3 text-xs tracking-[0.2em] text-muted/40 uppercase transition-colors duration-500 data-active:text-ink"
-                >
-                  {s.title}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <label className="w-full max-w-[380px]">
+            <span className="sr-only">Posição do vídeo</span>
+            <input
+              ref={rangeRef}
+              type="range"
+              min={0}
+              max={FRAME_COUNT - 1}
+              defaultValue={0}
+              onChange={(e) => goTo(Number(e.target.value), false)}
+              className="h-1 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-[#3333ff]"
+            />
+          </label>
         </div>
       </div>
     </section>
