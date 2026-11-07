@@ -1,6 +1,8 @@
 import { Camera } from "lucide-react";
 import { contact } from "@/content/site";
 
+import { Accent, SectionHeading } from "@/components/ui/section-heading";
+
 export default function About() {
   return (
     <section
@@ -10,19 +12,15 @@ export default function About() {
     >
       <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
         <div>
-          <p data-reveal className="text-xs tracking-[0.3em] text-muted uppercase">
-            03 / Quem somos
-          </p>
-          <h2
+          <SectionHeading
             id="sobre-title"
-            data-reveal
-            className="mt-4 text-[clamp(2.2rem,5vw,4.25rem)] leading-[0.95] font-bold tracking-[-0.04em]"
-          >
-            A DAFA é{" "}
-            <span className="font-display text-[#9a9cff] italic">
-              Daniel e Fabi.
-            </span>
-          </h2>
+            eyebrow="03 / Quem somos"
+            title={
+              <>
+                A DAFA é <Accent>Daniel e Fabi.</Accent>
+              </>
+            }
+          />
           <div data-reveal className="mt-8 space-y-5 text-lg leading-relaxed text-muted">
             <p>
               Somos uma empresa de gerenciamento de conteúdo de{" "}

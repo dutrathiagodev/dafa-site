@@ -5,6 +5,8 @@ import { asset } from "@/lib/asset";
 import { processSteps } from "@/content/site";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
 
+import { Accent, SectionHeading } from "@/components/ui/section-heading";
+
 const FRAME_COUNT = 138;
 const FPS = 12;
 const frameSrc = (i: number) =>
@@ -133,17 +135,16 @@ export default function ProcessSequence() {
 
       <div className="relative mx-auto grid max-w-[1320px] items-center gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_auto]">
         <div>
-          <p data-reveal className="text-xs tracking-[0.3em] text-muted uppercase">
-            02 / Processo
-          </p>
-          <h2
+          <SectionHeading
             id="processo-title"
-            data-reveal
-            className="mt-3 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.98] font-bold tracking-[-0.035em]"
-          >
-            Da ideia ao{" "}
-            <span className="font-display text-[#9a9cff] italic">conteúdo pronto.</span>
-          </h2>
+            eyebrow="02 / Processo"
+            size="sm"
+            title={
+              <>
+                Da ideia ao <Accent>conteúdo pronto.</Accent>
+              </>
+            }
+          />
 
           <div
             role="tablist"

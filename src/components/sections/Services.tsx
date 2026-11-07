@@ -14,6 +14,8 @@ import { services, whatsappUrl, type ServiceIcon } from "@/content/site";
 import { asset } from "@/lib/asset";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
+import { Accent, SectionHeading } from "@/components/ui/section-heading";
+
 const icons: Record<ServiceIcon, LucideIcon> = {
   video: Video,
   camera: Camera,
@@ -162,22 +164,16 @@ export default function Services() {
         className="relative mx-auto grid max-w-[1320px] items-center gap-12 px-4 py-24 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:py-32"
       >
         <div className="relative">
-          <p className="text-xs tracking-[0.3em] text-muted uppercase">
-            04 / Serviços
-          </p>
-          <h2
+          <SectionHeading
             id="servicos-title"
-            className="mt-4 text-[clamp(2.2rem,5vw,4.25rem)] leading-[0.95] font-bold tracking-[-0.04em]"
-          >
-            Tudo o que sua marca precisa{" "}
-            <span className="font-display text-[#9a9cff] italic">
-              para aparecer bem.
-            </span>
-          </h2>
-          <p className="mt-5 max-w-md text-muted">
-            A produção audiovisual é o coração do nosso trabalho. Em volta dela,
-            planejamento, fotografia, redes sociais e anúncios.
-          </p>
+            eyebrow="04 / Serviços"
+            title={
+              <>
+                Tudo o que sua marca precisa <Accent>para aparecer bem.</Accent>
+              </>
+            }
+            description="A produção audiovisual é o coração do nosso trabalho. Em volta dela, planejamento, fotografia, redes sociais e anúncios."
+          />
 
           <div className="relative mt-10 flex justify-center lg:justify-start lg:pl-10 [perspective:900px]">
             <div

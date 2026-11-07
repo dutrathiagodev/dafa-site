@@ -4,6 +4,8 @@ import { useRef } from "react";
 import { brand } from "@/content/site";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
+import { Eyebrow } from "@/components/ui/section-heading";
+
 const PHASES = [
   {
     text: "postar por postar.",
@@ -131,7 +133,7 @@ export default function GrowthChart() {
     <section ref={root} aria-labelledby="direcao-title" className="relative overflow-hidden py-24 sm:py-32">
       <div className="absolute inset-0 bg-[radial-gradient(50%_45%_at_50%_45%,rgba(16,16,236,.18),transparent_70%)]" />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 text-center">
-        <p className="text-xs tracking-[0.3em] text-muted uppercase">Por que direção importa</p>
+        <Eyebrow>Por que direção importa</Eyebrow>
         <h2 id="direcao-title" className="sr-only">
           Por que conteúdo com direção faz diferença: postar por postar oscila, constância cresce
           em linha e constância com direção cresce cada vez mais.

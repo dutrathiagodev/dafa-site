@@ -10,6 +10,9 @@ import {
   whatsappUrl,
 } from "@/content/site";
 
+import { Eyebrow } from "@/components/ui/section-heading";
+import { ButtonLink, WhatsAppButton } from "@/components/ui/button";
+
 export default function Contact() {
   const channels = [
     {
@@ -43,9 +46,7 @@ export default function Contact() {
     >
       <div className="relative isolate mx-auto max-w-[1320px] overflow-hidden rounded-[32px] border border-white/10 px-5 py-20 text-center sm:px-12 sm:py-28">
         <GridBackground />
-        <p data-reveal className="relative text-xs tracking-[0.3em] text-muted uppercase">
-          05 / Contato
-        </p>
+        <Eyebrow className="relative">05 / Contato</Eyebrow>
         <h2
           id="contato-title"
           data-reveal
@@ -59,22 +60,10 @@ export default function Contact() {
           {brand.pitch}
         </p>
         <div data-reveal className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-14 items-center gap-3 rounded-full bg-electric px-8 text-base font-semibold shadow-[0_10px_50px_-10px_#3333ff] transition hover:bg-[#4a4aff]"
-          >
-            <WhatsAppIcon className="size-5" />
-            Solicite um orçamento
-          </a>
-          <a
-            href={emailUrl}
-            className="inline-flex h-14 items-center gap-2 rounded-full border border-white/20 px-7 font-medium transition hover:border-white/50 hover:bg-white/5"
-          >
-            <Mail className="size-4" />
+          <WhatsAppButton />
+          <ButtonLink href={emailUrl} variant="ghost" icon={<Mail className="size-4" />}>
             Enviar e-mail
-          </a>
+          </ButtonLink>
         </div>
 
         <ul className="relative mx-auto mt-14 grid max-w-4xl gap-3 text-left sm:grid-cols-3">

@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import { ArrowDown } from "lucide-react";
 import GridBackground from "@/components/ui/grid-background";
 import CameraPhotos from "@/components/media/CameraPhotos";
-import { WhatsAppIcon } from "@/components/ui/brand-icons";
-import { brand, contact, whatsappUrl } from "@/content/site";
+import { ButtonLink, WhatsAppButton } from "@/components/ui/button";
+import { brand, contact } from "@/content/site";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 /** Cantos do enquadramento do visor. */
@@ -164,22 +164,10 @@ export default function Hero() {
           </p>
 
           <div className="animate-focus mt-8 flex flex-col items-center gap-3 [animation-delay:1.55s] sm:flex-row sm:justify-center lg:justify-start">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex h-14 items-center gap-3 rounded-full bg-electric px-7 text-base font-semibold shadow-[0_10px_50px_-10px_#3333ff] transition hover:bg-[#4a4aff] hover:shadow-[0_10px_60px_-6px_#3333ff]"
-            >
-              <WhatsAppIcon className="size-5" />
-              Solicite um orçamento
-            </a>
-            <a
-              href="#projetos"
-              className="inline-flex h-14 items-center gap-2 rounded-full border border-white/15 px-7 text-base font-medium text-ink transition hover:border-white/40 hover:bg-white/5"
-            >
+            <WhatsAppButton />
+            <ButtonLink href="#projetos" variant="ghost" iconAfter={<ArrowDown className="size-4" />}>
               Ver projetos
-              <ArrowDown className="size-4" />
-            </a>
+            </ButtonLink>
           </div>
         </div>
 
