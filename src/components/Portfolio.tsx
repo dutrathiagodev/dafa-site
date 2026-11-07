@@ -29,6 +29,26 @@ function ProjectCard({ p, index }: { p: Project; index: number }) {
     return () => io.disconnect();
   }, []);
 
+  // Inclinação 3D + brilho seguindo o mouse
+  const tilt = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType !== "mouse" || prefersReducedMotion()) return;
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width;
+    const ny = (e.clientY - r.top) / r.height;
+    el.style.setProperty("--mx", `${nx * 100}%`);
+    el.style.setProperty("--my", `${ny * 100}%`);
+    gsap.to(el, {
+      rotateY: (nx - 0.5) * 12,
+      rotateX: -(ny - 0.5) * 12,
+      transformPerspective: 900,
+      duration: 0.5,
+      ease: "power3.out",
+    });
+  };
+  const untilt = (e: React.PointerEvent<HTMLButtonElement>) =>
+    gsap.to(e.currentTarget, { rotateX: 0, rotateY: 0, duration: 0.8, ease: "elastic.out(1, 0.6)" });
+
   const open = () =>
     p.media.type === "video"
       ? openModal({
@@ -54,6 +74,9 @@ function ProjectCard({ p, index }: { p: Project; index: number }) {
       <button
         type="button"
         onClick={open}
+        onPointerMove={tilt}
+        onPointerLeave={untilt}
+        data-cursor={p.media.type === "video" ? "Assistir" : "Ver foto"}
         className="relative block aspect-[9/16] w-full overflow-hidden rounded-2xl border border-white/[.08] bg-surface text-left transition-[border-color,box-shadow] duration-500 hover:border-electric/60 hover:shadow-[0_20px_80px_-20px_rgba(51,51,255,.6)]"
         aria-label={`Abrir ${p.media.type === "video" ? "vídeo" : "foto"}: ${p.client}`}
       >
@@ -79,6 +102,14 @@ function ProjectCard({ p, index }: { p: Project; index: number }) {
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.16), transparent 45%)",
+          }}
+        />
 
         <span className="absolute top-3 right-3 grid size-10 place-items-center rounded-full bg-white/15 backdrop-blur-md transition group-hover:bg-electric">
           {p.media.type === "video" ? (
