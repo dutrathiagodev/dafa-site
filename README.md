@@ -37,7 +37,7 @@ npm run build   # build de produção
 ## Pendências (aguardando a DAFA)
 
 - [ ] Arquivos das fontes **Creato Display** e **Callum IT** com licença web (hoje são Plus Jakarta Sans e Playfair Display, provisórias).
-- [ ] Logo e símbolo originais em SVG (a logo atual veio do HTML antigo; o favicon "DA" é provisório).
+- [ ] Logo e símbolo originais em SVG (a logo e o favicon atuais vêm do PNG do HTML antigo).
 - [ ] Foto profissional do Daniel.
 - [ ] Confirmar o cliente e os serviços do projeto **imobiliário** e da **fotografia**.
 - [ ] Domínio e hospedagem → definir `NEXT_PUBLIC_SITE_URL`.
