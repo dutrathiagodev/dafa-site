@@ -11,7 +11,17 @@
 export async function createModelViewer(
   canvas: HTMLCanvasElement,
   url: string,
-  opts: { onReady?: () => void; reduceMotion?: boolean; pose?: { x: number; y: number; z: number } } = {},
+  opts: {
+    onReady?: () => void;
+    reduceMotion?: boolean;
+    pose?: { x: number; y: number; z: number };
+    /** Onde ler o arraste (padrão: o próprio canvas). O canvas pode ser maior que essa área para o modelo não ser cortado ao girar. */
+    input?: HTMLElement;
+    /** Distância da câmera virtual (maior = modelo menor no canvas). */
+    distance?: number;
+    /** Modelo da câmera ABERTA (vista explodida), carregado depois; ver `setVariant`. */
+    openUrl?: string | null;
+  } = {},
 ) {
   const THREE = await import("three");
   const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader.js");
@@ -31,7 +41,7 @@ export async function createModelViewer(
   scene.environmentIntensity = 0.9;
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
-  camera.position.set(0, 0, 3.05);
+  camera.position.set(0, 0, opts.distance ?? 3.05);
 
   // luzes: chave branca suave + contra-luz azul DAFA
   const key = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -46,23 +56,54 @@ export async function createModelViewer(
   const pivot = new THREE.Group();
   scene.add(pivot);
 
-  const gltf = await new GLTFLoader().loadAsync(url);
-  const model = gltf.scene;
-  // centraliza e normaliza o tamanho
-  const box = new THREE.Box3().setFromObject(model);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
-  model.position.sub(center);
-  const scale = 2 / Math.max(size.x, size.y, size.z);
-  model.scale.setScalar(scale);
-  model.position.multiplyScalar(scale);
-  // pose inicial (para casar com a pose de frente do vídeo de desmontagem)
-  const orient = new THREE.Group();
-  if (opts.pose) orient.rotation.set(opts.pose.x, opts.pose.y, opts.pose.z);
-  orient.add(model);
-  pivot.add(orient);
+  const loader = new GLTFLoader();
+  /** Carrega um GLB centralizado, do mesmo tamanho e na pose de frente. */
+  const load = async (src: string) => {
+    const model = (await loader.loadAsync(src)).scene;
+    // modelos gerados por IA às vezes vêm com material translúcido: força 100% opaco
+    model.traverse((o) => {
+      const mesh = o as import("three").Mesh;
+      if (!mesh.isMesh) return;
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      mats.forEach((m) => {
+        const mat = m as import("three").MeshStandardMaterial;
+        mat.transparent = false;
+        mat.opacity = 1;
+        mat.alphaTest = 0;
+        mat.alphaMap = null;
+        mat.depthWrite = true;
+        mat.depthTest = true;
+        mat.side = THREE.DoubleSide; // faces viradas para dentro não somem
+        mat.needsUpdate = true;
+      });
+    });
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+    const scale = 2 / Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(scale);
+    model.position.multiplyScalar(scale);
+    // pose inicial (para casar com a pose de frente do vídeo de desmontagem)
+    const orient = new THREE.Group();
+    if (opts.pose) orient.rotation.set(opts.pose.x, opts.pose.y, opts.pose.z);
+    orient.add(model);
+    pivot.add(orient);
+    return orient;
+  };
+  const closed = await load(url);
+  let open: import("three").Group | null = null;
+  let variant: "closed" | "open" = "closed";
+  if (opts.openUrl) {
+    load(opts.openUrl)
+      .then((g) => {
+        open = g;
+        g.visible = variant === "open";
+      })
+      .catch(() => {});
+  }
 
-  const controls = new TrackballControls(camera, canvas);
+  const controls = new TrackballControls(camera, opts.input ?? canvas);
   controls.rotateSpeed = 3;
   controls.noZoom = true;
   controls.noPan = true;
@@ -112,6 +153,14 @@ export async function createModelViewer(
   opts.onReady?.();
 
   return {
+    /** Já existe modelo 3D da câmera aberta? */
+    hasOpen: () => !!open,
+    /** Mostra a câmera fechada ou aberta (troca instantânea; a transição é o vídeo). */
+    setVariant(v: "closed" | "open") {
+      variant = v;
+      closed.visible = v === "closed" || !open;
+      if (open) open.visible = v === "open";
+    },
     /** Volta suavemente para a pose de frente (usada antes de abrir a câmera). */
     resetPose(duration = 0.8): Promise<void> {
       return new Promise((resolve) => {
