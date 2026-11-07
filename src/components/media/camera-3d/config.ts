@@ -5,8 +5,10 @@
  *    (vídeo "empilhado": cor em cima, máscara embaixo — src/lib/alpha-video.ts).
  */
 export const CAMERA_MEDIA = {
-  /** Modelo 3D da Sony ZV-E10 + Sigma 16mm (gerado no Meshy a partir da foto real; licença CC BY 4.0). */
+  /** Modelo 3D da Sony ZV-E10 + Sigma 16mm (gerado no Hunyuan3D-2.1 a partir da foto real recortada). */
   model: "/media/camera/zve10.glb",
+  /** Modelo 3D da câmera ABERTA (vista explodida). Sem ele (null), aberta ela só inclina. */
+  modelOpen: null as string | null,
   /** Ida (abre), espera e volta (monta) no mesmo arquivo. */
   explode: "/media/camera/zve10-desmonta.mp4",
   /** 1º quadro recortado: aparece na hora e é a versão parada (movimento reduzido / sem WebGL). */

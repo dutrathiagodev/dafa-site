@@ -51,18 +51,29 @@ export default function Camera3D({ className = "" }: { className?: string }) {
       setShowVideo(true);
       // garante a parada exata quando a câmera está toda aberta
       window.clearTimeout(pauseTimer);
-      pauseTimer = window.setTimeout(() => {
-        if (state !== "opening") return;
-        v.pause();
-        state = "open";
-        openedAt = performance.now();
-      }, (T.openAt - v.currentTime) * 1000);
+      pauseTimer = window.setTimeout(onOpened, (T.openAt - v.currentTime) * 1000);
     };
-    const close = () => {
+    /** Chegou toda aberta: para o vídeo e, se houver, troca para o modelo 3D aberto. */
+    const onOpened = () => {
+      if (state !== "opening") return;
+      v.pause();
+      state = "open";
+      openedAt = performance.now();
+      if (viewer?.hasOpen()) {
+        viewer.setVariant("open");
+        setShowVideo(false);
+      }
+    };
+    const close = async () => {
       if (state !== "open") return;
       state = "closing";
       autoOpened = false;
       gsap.to(tilt.current, { rotationX: 0, rotationY: 0, duration: 0.5, ease: "power2.inOut" });
+      if (viewer?.hasOpen()) {
+        // 3D aberto volta de frente e o vídeo assume a volta (montar)
+        await viewer.resetPose(0.7);
+        setShowVideo(true);
+      }
       v.currentTime = T.closeFrom;
       v.play().catch(() => {});
     };
@@ -70,13 +81,10 @@ export default function Camera3D({ className = "" }: { className?: string }) {
     toggleRef.current = toggle;
 
     const onTime = () => {
-      if (state === "opening" && v.currentTime >= T.openAt - 0.06) {
-        v.pause();
-        state = "open";
-        openedAt = performance.now();
-      }
+      if (state === "opening" && v.currentTime >= T.openAt - 0.06) onOpened();
     };
     const onEnded = () => {
+      viewer?.setVariant("closed");
       setShowVideo(false);
       state = "closed";
       lastInput = performance.now();
@@ -109,7 +117,7 @@ export default function Camera3D({ className = "" }: { className?: string }) {
     const onMove = (e: PointerEvent) => {
       if (!dragging) return;
       lastInput = performance.now();
-      if (state === "open") {
+      if (state === "open" && !viewer?.hasOpen()) {
         const t = tilt.current!;
         const rx = gsap.utils.clamp(-T.maxTilt, T.maxTilt, Number(gsap.getProperty(t, "rotationX")) - (e.clientY - lastY) * 0.25);
         const ry = gsap.utils.clamp(-T.maxTilt, T.maxTilt, Number(gsap.getProperty(t, "rotationY")) + (e.clientX - lastX) * 0.25);
@@ -135,6 +143,9 @@ export default function Camera3D({ className = "" }: { className?: string }) {
       try {
         const vw = await createModelViewer(gl.current!, asset(CAMERA_MEDIA.model), {
           pose: MODEL_POSE,
+          input: el,
+          distance: 4.6,
+          openUrl: CAMERA_MEDIA.modelOpen ? asset(CAMERA_MEDIA.modelOpen) : null,
           onReady: () => alive && setReady3d(true),
         });
         if (!alive) vw.destroy();
@@ -191,7 +202,12 @@ export default function Camera3D({ className = "" }: { className?: string }) {
             draggable={false}
             className={`${fade} object-contain ${ready3d ? "opacity-0" : "opacity-100"}`}
           />
-          <canvas ref={gl} aria-hidden="true" className={`${fade} ${ready3d && !showVideo ? "opacity-100" : "pointer-events-none opacity-0"}`} />
+          {/* o canvas 3D é bem maior que a área: girando, a câmera nunca é cortada */}
+          <canvas
+            ref={gl}
+            aria-hidden="true"
+            className={`pointer-events-none absolute -inset-[35%] h-[170%] w-[170%] transition-opacity duration-500 ${ready3d && !showVideo ? "opacity-100" : "opacity-0"}`}
+          />
           <canvas ref={vc} aria-hidden="true" className={`${fade} object-contain ${showVideo ? "opacity-100" : "opacity-0"} pointer-events-none`} />
         </div>
       </div>

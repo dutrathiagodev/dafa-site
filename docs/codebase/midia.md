@@ -40,13 +40,15 @@ Todo caminho de `/media` passa por `asset()` (prefixo do GitHub Pages).
 
 Arquivos em `public/media/camera/`:
 
-- `zve10.glb`: modelo 3D real da câmera, com textura (cerca de 3,9 MB, carregado só depois da página abrir). Gerado no Meshy a partir da foto real da ZV-E10 + Sigma 16mm, com as texturas recomprimidas em JPEG. Licença **CC BY 4.0**: o crédito ao Meshy fica no rodapé e não pode sair. O original está em `dafa/camera-gemini/zve10-meshy.glb`.
+- `zve10.glb`: modelo 3D real da câmera, com textura (cerca de 2,9 MB, carregado só depois da página abrir). Gerado no Hunyuan3D-2.1 (Hugging Face) a partir da foto real da ZV-E10 + Sigma 16mm recortada por IA. O original está em `dafa/camera-gemini/zve10-hunyuan.glb`. O visualizador força os materiais a ficarem opacos e com as duas faces visíveis, porque modelos gerados por IA às vezes vêm com faces viradas para dentro.
 - `zve10-desmonta.mp4`: vista explodida em vídeo (abre, segura, monta). Os quadros foram recortados por IA (rembg / IS-Net, com os buracos preenchidos) e "empilhados": cor em cima, máscara embaixo. Fica com fundo transparente e a câmera 100% sólida.
 - `zve10-frente.webp`: 1º quadro recortado. Aparece na hora e é a versão parada (movimento reduzido ou sem WebGL).
 
 **Como funciona:**
 - `model-viewer.ts`: three.js com TrackballControls. Gira livre em **todos os eixos** (lados, cima/baixo, diagonais e no próprio plano), com inércia. Parado, gira sozinho. Fundo transparente, luz de estúdio com contra-luz azul. A pose inicial vem de `MODEL_POSE` (`config.ts`).
-- `Camera3D.tsx`: o clique (ou sozinho depois de 14 s sem mexer) leva o modelo de volta à frente e troca para o vídeo da desmontagem, desenhado por `src/lib/alpha-video.ts`. Aberta, arrastar inclina; outro clique monta, e no fim volta para o 3D.
+- `Camera3D.tsx`: o clique (ou sozinho depois de 14 s sem mexer) leva o modelo de volta à frente e troca para o vídeo da desmontagem, desenhado por `src/lib/alpha-video.ts`. Se existir `modelOpen` (modelo 3D da vista explodida), ele entra no fim da ida e a câmera aberta também gira em 3D; sem ele, aberta, arrastar inclina. Outro clique monta, e no fim volta para o 3D.
+- O canvas 3D é 70% maior que a área da câmera e não recebe cliques; o arraste é lido na área da câmera. Assim o modelo nunca é cortado ao girar.
+- `scripts/otimizar-glb.py` recomprime as texturas de um GLB novo antes de colocar no site.
 - No celular o toque gira a câmera (`touch-action: none` só nessa área).
 
 ## Cartão SD (`camera/cartao-sd.mp4`)
