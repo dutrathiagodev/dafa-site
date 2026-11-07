@@ -10,7 +10,8 @@ import { Eyebrow } from "@/components/ui/section-heading";
  * 1. o gráfico nasce pequeno no canto e cresce enquanto a linha é desenhada;
  * 2. o texto é digitado, os pontinhos animam, embaralha e some;
  * 3. na última fase a linha muda de cor enquanto desenha (vermelho → verde → azul),
- *    o fundo dá um flash e a curva "quebra" o gráfico saindo pelo topo;
+ *    o fundo dá um flash e a curva rompe o canto da grade: os quadradinhos
+ *    de cima à direita quebram e voam para fora;
  * 4. tudo some e o loop recomeça.
  */
 const JAGGED =
@@ -20,6 +21,30 @@ const EXP = "M50,242 C210,238 305,200 362,36";
 const BREAK = "M362,36 C366,8 369,-30 372,-96";
 const GLYPHS = "abcdefghijklmnopqrstuvwxyz";
 const ORIGIN = "40 260"; // canto dos eixos (o gráfico cresce a partir daqui)
+const GRID_LINE = "rgba(255,255,255,.07)";
+
+/*
+ * A grade é feita de quadradinhos independentes (só a borda de cima e a da
+ * direita de cada um; os eixos fecham o resto). Os do canto de cima à direita
+ * são os "cacos": quando a curva rompe o gráfico, eles quebram e saem voando.
+ */
+const COLS = 8;
+const ROWS = 5;
+const CW = 40;
+const CH = 46;
+const BREAK_AT = { x: 330, y: 70 }; // de onde os cacos se afastam
+const cells = Array.from({ length: COLS * ROWS }, (_, k) => {
+  const c = k % COLS;
+  const r = Math.floor(k / COLS);
+  const x = 40 + c * CW;
+  const y = 30 + r * CH;
+  const shard = (r <= 1 && c >= 5) || (r === 2 && c === 7);
+  const dx = x + CW / 2 - BREAK_AT.x;
+  const dy = y + CH / 2 - BREAK_AT.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { k, d: `M${x},${y}H${x + CW}V${y + CH}`, shard, ux: dx / len, uy: dy / len };
+});
+const shardCells = cells.filter((c) => c.shard);
 
 export default function GrowthChart() {
   const root = useRef<HTMLElement>(null);
@@ -35,6 +60,8 @@ export default function GrowthChart() {
       const glow = q("[data-chart-glow]")[0];
       const flash = q("[data-flash]")[0];
       const quote = q("[data-chart-quote]")[0];
+      const shards = q("[data-shard]");
+      const resetShards = { x: 0, y: 0, rotation: 0, opacity: 1, stroke: GRID_LINE };
       const el = label.current!;
 
       if (prefersReducedMotion()) {
@@ -115,6 +142,7 @@ export default function GrowthChart() {
       tl.set([jag, lin, exp, brk], { strokeDashoffset: 1 })
         .set(exp, { stroke: "#ff4f72" })
         .set([glow, flash], { opacity: 0 })
+        .set(shards, resetShards)
         .set(chart, { opacity: 0, scale: 1, svgOrigin: ORIGIN })
         .call(() => setText(""));
 
@@ -142,6 +170,22 @@ export default function GrowthChart() {
         .to(quote, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "<0.2")
         // a quebra: a curva sai do gráfico pelo topo e a "câmera" se afasta
         .to(brk, { strokeDashoffset: 0, duration: 0.9, ease: "power2.in" }, ">0.4")
+        // o canto da grade racha (acende) e os cacos voam para fora
+        .to(shards, { stroke: "rgba(169,171,255,.75)", duration: 0.12 }, "<0.45")
+        .to(
+          shards,
+          {
+            x: (i: number) => shardCells[i].ux * gsap.utils.random(70, 160),
+            y: (i: number) => shardCells[i].uy * gsap.utils.random(70, 160) - 30,
+            rotation: () => gsap.utils.random(-120, 120),
+            opacity: 0,
+            transformOrigin: "50% 50%",
+            duration: 1.3,
+            ease: "power3.out",
+            stagger: { amount: 0.18, from: "end" },
+          },
+          ">",
+        )
         .to(chart, { scale: 0.9, svgOrigin: "205 150", duration: 1.4, ease: "power2.out" }, "<")
         .to(el, { opacity: 0.45, duration: 0.8 }, "<0.4")
         .to({}, { duration: 1.4 })
@@ -189,16 +233,20 @@ export default function GrowthChart() {
           </defs>
           <g data-chart opacity="0">
             <g data-grid>
-              {Array.from({ length: 9 }, (_, i) => (
-                <line key={`v${i}`} x1={40 + i * 40} x2={40 + i * 40} y1="30" y2="260" stroke="rgba(255,255,255,.06)" />
-              ))}
-              {Array.from({ length: 6 }, (_, i) => (
-                <line key={`h${i}`} x1="40" x2="370" y1={30 + i * 46} y2={30 + i * 46} stroke="rgba(255,255,255,.06)" />
+              {cells.map((c) => (
+                <path
+                  key={c.k}
+                  d={c.d}
+                  fill="none"
+                  stroke={GRID_LINE}
+                  strokeWidth="1"
+                  {...(c.shard ? { "data-shard": "" } : {})}
+                />
               ))}
             </g>
             <path
               data-axes
-              d="M40 30V260H370"
+              d="M40 30V260H360"
               pathLength={1}
               strokeDasharray="1"
               strokeDashoffset="1"
