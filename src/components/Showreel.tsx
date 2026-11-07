@@ -1,16 +1,42 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 import { asset } from "@/lib/asset";
-import { useRef } from "react";
-import { Play } from "lucide-react";
 import { showreel } from "@/content/site";
-import { useMediaModal } from "./VideoModal";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
-/** Vídeo de apresentação que "abre" conforme entra na tela. */
+/**
+ * Vídeo de apresentação: toca sozinho (sem som, em loop), sem botão de play.
+ * Clicar no vídeo ou no ícone liga/desliga o som ali mesmo.
+ * Ele "abre" conforme entra na tela e pausa quando sai.
+ */
 export default function Showreel() {
   const root = useRef<HTMLElement>(null);
-  const openModal = useMediaModal();
+  const video = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+
+  useEffect(() => {
+    const v = video.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+
+  const toggleSound = () => {
+    const v = video.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    if (!v.muted) v.play().catch(() => {});
+    setMuted(v.muted);
+  };
 
   useGSAP(
     () => {
@@ -44,42 +70,33 @@ export default function Showreel() {
     >
       <div
         data-reel-frame
-        className="relative mx-auto aspect-video max-w-[1200px] overflow-hidden rounded-3xl border border-white/10 bg-navy shadow-[0_40px_120px_-30px_rgba(16,16,236,.7)] will-change-transform"
+        className="group relative mx-auto aspect-video max-w-[1200px] overflow-hidden rounded-3xl border border-white/10 bg-navy shadow-[0_40px_120px_-30px_rgba(16,16,236,.7)] will-change-transform"
       >
         <video
-          src={asset(showreel.preview)}
+          ref={video}
+          src={asset(showreel.src)}
           poster={asset(showreel.poster)}
           muted
           loop
           autoPlay
           playsInline
           preload="metadata"
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
+          onClick={toggleSound}
+          data-cursor={muted ? "Ouvir" : "Silenciar"}
+          aria-label={`${showreel.title}. Clique para ${muted ? "ligar" : "desligar"} o som.`}
+          className="absolute inset-0 h-full w-full cursor-pointer object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+
         <button
           type="button"
-          onClick={() =>
-            openModal({
-              kind: "video",
-              src: showreel.src,
-              poster: showreel.poster,
-              title: showreel.title,
-              format: "horizontal",
-            })
-          }
-          className="group absolute inset-0 flex flex-col items-center justify-center gap-4 text-white"
-          aria-label="Assistir ao vídeo de apresentação com som"
-          data-cursor="Assistir"
+          onClick={toggleSound}
+          aria-pressed={!muted}
+          aria-label={muted ? "Ligar o som do vídeo" : "Desligar o som do vídeo"}
+          className="absolute right-4 bottom-4 inline-flex items-center gap-2 rounded-full bg-black/45 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition hover:bg-electric sm:right-6 sm:bottom-6"
         >
-          <span className="relative grid size-20 place-items-center rounded-full bg-white/15 backdrop-blur-md transition-transform duration-500 group-hover:scale-110 sm:size-24">
-            <span className="absolute inset-0 animate-ping rounded-full bg-electric/40 [animation-duration:2.4s]" />
-            <Play className="relative size-8 translate-x-0.5 fill-white" />
-          </span>
-          <span className="text-sm font-medium tracking-wide opacity-90">
-            Assistir com som
-          </span>
+          {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+          {muted ? "Ativar som" : "Som ligado"}
         </button>
       </div>
     </section>
