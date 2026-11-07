@@ -5,7 +5,6 @@ import { asset } from "@/lib/asset";
 import { processSteps } from "@/content/site";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
 
-import EditFrame from "./ui/edit-frame";
 const FRAME_COUNT = 138;
 const FPS = 12;
 const frameSrc = (i: number) =>
@@ -137,15 +136,14 @@ export default function ProcessSequence() {
           <p data-reveal className="text-xs tracking-[0.3em] text-muted uppercase">
             02 / Processo
           </p>
-          <EditFrame label="Texto · Título">
-            <h2
-              id="processo-title"
-              className="mt-3 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.98] font-bold tracking-[-0.035em]"
-            >
-              Da ideia ao{" "}
-              <span className="font-display text-[#9a9cff] italic">conteúdo pronto.</span>
-            </h2>
-          </EditFrame>
+          <h2
+            id="processo-title"
+            data-reveal
+            className="mt-3 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.98] font-bold tracking-[-0.035em]"
+          >
+            Da ideia ao{" "}
+            <span className="font-display text-[#9a9cff] italic">conteúdo pronto.</span>
+          </h2>
 
           <div
             role="tablist"

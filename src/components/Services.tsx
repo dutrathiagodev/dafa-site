@@ -14,7 +14,6 @@ import { services, whatsappUrl, type ServiceIcon } from "@/content/site";
 import { SdCard } from "./ui/sd-card";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
-import EditFrame from "./ui/edit-frame";
 const icons: Record<ServiceIcon, LucideIcon> = {
   video: Video,
   camera: Camera,
@@ -154,17 +153,15 @@ export default function Services() {
           <p className="text-xs tracking-[0.3em] text-muted uppercase">
             04 / Serviços
           </p>
-          <EditFrame label="Texto · Título">
-            <h2
-              id="servicos-title"
-              className="mt-4 text-[clamp(2.2rem,5vw,4.25rem)] leading-[0.95] font-bold tracking-[-0.04em]"
-            >
-              Tudo o que sua marca precisa{" "}
-              <span className="font-display text-[#9a9cff] italic">
-                para aparecer bem.
-              </span>
-            </h2>
-          </EditFrame>
+          <h2
+            id="servicos-title"
+            className="mt-4 text-[clamp(2.2rem,5vw,4.25rem)] leading-[0.95] font-bold tracking-[-0.04em]"
+          >
+            Tudo o que sua marca precisa{" "}
+            <span className="font-display text-[#9a9cff] italic">
+              para aparecer bem.
+            </span>
+          </h2>
           <p className="mt-5 max-w-md text-muted">
             A produção audiovisual é o coração do nosso trabalho. Em volta dela,
             planejamento, fotografia, redes sociais e anúncios.
