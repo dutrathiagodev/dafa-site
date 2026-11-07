@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { services, whatsappUrl, type ServiceIcon } from "@/content/site";
-import { SdCard } from "./ui/sd-card";
+import { asset } from "@/lib/asset";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 const icons: Record<ServiceIcon, LucideIcon> = {
@@ -74,12 +74,8 @@ export default function Services() {
         { rotateY: -38, rotateX: 18, scale: 0.78 },
         { rotateY: 0, rotateX: 0, scale: 1, duration: 1.4, ease: "power3.out" },
       )
-        .fromTo(
-          "[data-sd] [data-sd-pin]",
-          { fill: "#d9b45a" },
-          { fill: "#5b5bff", duration: 0.35, stagger: 0.12 },
-          0.3,
-        )
+        .fromTo(sd, { filter: "brightness(0.55)" }, { filter: "brightness(1.15)", duration: 0.9, ease: "power2.out" }, 0.3)
+        .to(sd, { filter: "brightness(1)", duration: 1.2 }, 1.2)
         .fromTo("[data-sd-glow]", { opacity: 0.3 }, { opacity: 1, duration: 0.8 }, 0.5)
         .fromTo(
           cards,
@@ -103,7 +99,7 @@ export default function Services() {
           if (hovering) tl.pause();
         })
         .to(cards, { ...from, rotation: 0, duration: 1.4, ease: "power3.inOut", stagger: 0.1 })
-        .to("[data-sd] [data-sd-pin]", { fill: "#d9b45a", duration: 0.4, stagger: 0.06 }, "<0.6")
+        .to(sd, { filter: "brightness(0.55)", duration: 0.8 }, "<0.6")
         .to({}, { duration: 0.6 });
 
       gsap.set(cards, { autoAlpha: 0 });
@@ -186,16 +182,24 @@ export default function Services() {
           <div className="relative mt-10 flex justify-center lg:justify-start lg:pl-10 [perspective:900px]">
             <div
               data-sd-glow
-              className="absolute top-1/2 left-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-electric/50 opacity-40 blur-[70px] lg:left-[calc(2.5rem+80px)]"
+              className="absolute top-1/2 left-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-electric/50 opacity-40 blur-[70px] lg:left-[calc(2.5rem+120px)]"
             />
             <button
               type="button"
               data-sd
               onClick={() => replay.current()}
               aria-label="Soltar os serviços do cartão de novo"
-              className="relative w-32 cursor-pointer rounded-xl will-change-transform sm:w-40"
+              className="relative w-48 cursor-pointer will-change-transform sm:w-60"
             >
-              <SdCard className="h-auto w-full drop-shadow-[0_20px_40px_rgba(16,16,236,.55)]" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={asset("/media/camera/cartao-sd-dafa.webp")}
+                alt="Cartão de memória com fita escrita DAFA conteúdos"
+                width={900}
+                height={900}
+                draggable={false}
+                className="h-auto w-full mix-blend-lighten [mask-image:radial-gradient(closest-side,#000_72%,transparent)]"
+              />
             </button>
           </div>
         </div>
