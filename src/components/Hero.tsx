@@ -199,19 +199,6 @@ export default function Hero() {
           </a>
         </div>
       </div>
-
-      {/* Indicador de rolagem (mouse) */}
-      <a
-        href="#showreel"
-        data-hero-fade
-        className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-[11px] tracking-[0.25em] text-muted uppercase"
-        aria-label="Rolar para o vídeo de apresentação"
-      >
-        <span className="relative flex h-10 w-6 justify-center rounded-full border border-white/30">
-          <span className="animate-wheel mt-2 h-2 w-0.5 rounded-full bg-white" />
-        </span>
-        Role
-      </a>
     </section>
   );
 }
