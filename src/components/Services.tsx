@@ -198,7 +198,7 @@ export default function Services() {
                 width={900}
                 height={900}
                 draggable={false}
-                className="h-auto w-full mix-blend-lighten [mask-image:radial-gradient(closest-side,#000_72%,transparent)]"
+                className="h-auto w-full"
               />
             </button>
           </div>

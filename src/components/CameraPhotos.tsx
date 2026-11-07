@@ -8,7 +8,7 @@ import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
  * Câmera do hero com fotos realistas (Sony ZV-E10 + Sigma 16mm f/1.4).
  * Clicar na câmera abre a vista explodida; clicar de novo monta.
  * Com o mouse por cima ela inclina de leve; parada, flutua.
- * O fundo preto das fotos some sobre a página (mix-blend lighten).
+ * O fundo das fotos já é transparente (recorte feito a partir das bordas).
  */
 export default function CameraPhotos({ className = "" }: { className?: string }) {
   const root = useRef<HTMLButtonElement>(null);
@@ -103,7 +103,7 @@ export default function CameraPhotos({ className = "" }: { className?: string })
           height={1400}
           fetchPriority="high"
           draggable={false}
-          className="absolute inset-0 h-full w-full object-contain mix-blend-lighten [mask-image:radial-gradient(closest-side,#000_70%,transparent)]"
+          className="absolute inset-0 h-full w-full object-contain"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -114,7 +114,7 @@ export default function CameraPhotos({ className = "" }: { className?: string })
           height={1400}
           decoding="async"
           draggable={false}
-          className="absolute inset-0 h-full w-full object-contain mix-blend-lighten [mask-image:radial-gradient(closest-side,#000_70%,transparent)]"
+          className="absolute inset-0 h-full w-full object-contain"
         />
       </div>
     </button>
