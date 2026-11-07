@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowDown } from "lucide-react";
 import GridBackground from "@/components/ui/grid-background";
-import CameraPhotos from "@/components/media/CameraPhotos";
+import Camera3D from "@/components/media/camera-3d/Camera3D";
 import { ButtonLink, WhatsAppButton } from "@/components/ui/button";
 import { brand, contact } from "@/content/site";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
@@ -171,7 +171,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <CameraPhotos className="mx-auto aspect-square h-auto w-full max-w-[520px] lg:max-w-[640px]" />
+        <Camera3D className="mx-auto aspect-video h-auto w-full max-w-[600px] lg:max-w-[760px]" />
       </div>
     </section>
   );
