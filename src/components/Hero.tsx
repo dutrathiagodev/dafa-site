@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ArrowDown } from "lucide-react";
-import LightArcs from "./LightArcs";
+import GridBackground from "./GridBackground";
 import CameraPhotos from "./CameraPhotos";
 import { WhatsAppIcon } from "./brand-icons";
 import { brand, contact, whatsappUrl } from "@/content/site";
@@ -98,8 +98,8 @@ export default function Hero() {
       ref={root}
       className="relative isolate min-h-[100svh] overflow-hidden"
     >
-      <LightArcs className="opacity-55" />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-48 bg-gradient-to-b from-transparent to-bg" />
+      <GridBackground />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-20 bg-gradient-to-b from-transparent to-bg" />
 
       {/* Obturador abrindo */}
       <div aria-hidden="true" className="animate-shutter absolute inset-x-0 top-0 z-30 h-1/2 origin-top bg-black" />

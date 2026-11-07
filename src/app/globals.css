@@ -16,7 +16,8 @@
 
   --animate-marquee: marquee 40s linear infinite;
   --animate-float: float 6s ease-in-out infinite;
-  --animate-drift: drift 18s ease-in-out infinite alternate;
+  --animate-grid: grid-pan 9s linear infinite;
+  --animate-glow: glow-breathe 7s ease-in-out infinite;
   --animate-shutter: shutter 1.15s cubic-bezier(0.76, 0, 0.24, 1) 0.15s both;
   --animate-focus: focus-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-rec: rec 1.2s steps(1, end) infinite;
@@ -74,12 +75,23 @@
       translate: 0 -10px;
     }
   }
-  @keyframes drift {
+  @keyframes grid-pan {
     from {
-      transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
     }
     to {
-      transform: rotate(calc(var(--r, 0deg) + 8deg)) translate3d(2%, -3%, 0);
+      transform: translate3d(48px, 48px, 0);
+    }
+  }
+  @keyframes glow-breathe {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.08);
     }
   }
 }
@@ -148,32 +160,6 @@ html.lenis body {
 }
 .lenis.lenis-stopped {
   overflow: hidden;
-}
-
-/* Arcos de luz da identidade visual */
-.light-arc {
-  position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
-  border-top-color: rgba(150, 155, 255, 0.95);
-  box-shadow:
-    0 -14px 40px -12px rgba(51, 51, 255, 0.9),
-    inset 0 18px 60px -20px rgba(51, 51, 255, 0.75);
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent 4%,
-    #000 35%,
-    #000 65%,
-    transparent 96%
-  );
-  mask-image: linear-gradient(
-    90deg,
-    transparent 4%,
-    #000 35%,
-    #000 65%,
-    transparent 96%
-  );
-  will-change: transform;
 }
 
 .glass {
