@@ -11,7 +11,7 @@ export function structuredData() {
     slogan: brand.tagline,
     description: brand.description,
     url: siteUrl,
-    image: `${siteUrl}/opengraph-image`,
+    image: `${siteUrl}/opengraph-image.png`,
     logo: `${siteUrl}/media/img/logo-dafa.png`,
     telephone: "+55 43 99900-1173",
     email: contact.email,
