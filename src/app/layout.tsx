@@ -26,7 +26,8 @@ const callum = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  // Só o domínio: o Next já soma o basePath às imagens (og, ícones).
+  metadataBase: new URL(new URL(siteUrl).origin),
   title: { default: brand.title, template: "%s | DAFA" },
   description: brand.description,
   applicationName: "DAFA",
@@ -51,11 +52,11 @@ export const metadata: Metadata = {
   creator: "DAFA",
   publisher: "DAFA",
   category: "marketing",
-  alternates: { canonical: "/" },
+  alternates: { canonical: `${siteUrl}/` },
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: "/",
+    url: `${siteUrl}/`,
     siteName: "DAFA — Gerenciamento de Conteúdo",
     title: brand.title,
     description: brand.description,
