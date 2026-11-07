@@ -191,7 +191,7 @@ export default function Services() {
                 src="/media/camera/cartao-sd.mp4"
                 poster="/media/camera/cartao-sd-capa.webp"
                 label="Cartão de memória com fita escrita DAFA conteúdos"
-                fadeEdges
+                alpha
                 className="pointer-events-none aspect-square h-auto w-full"
               />
             </button>
