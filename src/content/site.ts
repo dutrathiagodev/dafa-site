@@ -199,6 +199,28 @@ export const showreel = {
   poster: "/media/posters/dafa-chamada.webp",
 };
 
+export type TeamMember = {
+  name: string;
+  /** Cargo em inglês, como a DAFA usa. */
+  role: string;
+  bio?: string[];
+  /** Caminho em /public (ex.: "/media/team/daniel.webp"). Sem foto, mostra a inicial. */
+  photo?: string;
+};
+
+// TODO(DAFA): adicionar as fotos em public/media/team/ e preencher `photo`.
+export const team: TeamMember[] = [
+  {
+    name: "Daniel",
+    role: "CEO",
+    bio: [
+      "Daniel atua com produção audiovisual, criação e gerenciamento de conteúdo e tráfego pago. Seu trabalho une olhar criativo e estratégia para transformar ideias em vídeos, imagens e conteúdos que comuniquem a identidade e o valor de cada negócio.",
+      "Com atuação em Santo Antônio da Platina e região, desenvolve projetos para empresas de diferentes segmentos, cuidando tanto da qualidade visual quanto da mensagem que cada conteúdo precisa transmitir.",
+    ],
+  },
+  { name: "Fabiano", role: "Partner" },
+];
+
 export const faq = [
   {
     q: "Em quais cidades a DAFA atende?",

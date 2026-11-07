@@ -20,7 +20,7 @@
 
 ## Sobre
 
-Portfólio e apresentação comercial da DAFA, empresa dos sócios Daniel e Fabi. A página mostra os trabalhos logo de cara, explica de forma simples o que a DAFA faz e leva o visitante a conversar pelo WhatsApp. Sem métricas inventadas e sem depoimentos que não foram confirmados.
+Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano (Partner). A página mostra os trabalhos logo de cara, explica de forma simples o que a DAFA faz e leva o visitante a conversar pelo WhatsApp. Sem métricas inventadas e sem depoimentos que não foram confirmados.
 
 ## Links
 
