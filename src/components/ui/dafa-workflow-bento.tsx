@@ -61,17 +61,6 @@ function useReducedMotion() {
 
 /* ---------------------------------------------------------------- pieces */
 
-function Brackets() {
-  return (
-    <>
-      <span className="db-c db-c-tl" aria-hidden="true" />
-      <span className="db-c db-c-tr" aria-hidden="true" />
-      <span className="db-c db-c-bl" aria-hidden="true" />
-      <span className="db-c db-c-br" aria-hidden="true" />
-    </>
-  );
-}
-
 /** Mini cartão SD desenhado dentro dos diagramas. */
 function MiniSd({ x, y, w = 46 }: { x: number; y: number; w?: number }) {
   const s = w / 120;
@@ -215,9 +204,8 @@ function FlowCard({ reduced, inView }: { reduced: boolean; inView: boolean }) {
   const R2 = "M343,122 C392,122 410,134 450,134";
 
   return (
-    <div className="db-frame db-hover db-wide">
-      <Brackets />
-      <div className="db-card" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="db-frame db-wide">
+      <div className="db-card">
         <svg
           className="db-diagram"
           viewBox="0 0 640 178"
@@ -230,11 +218,11 @@ function FlowCard({ reduced, inView }: { reduced: boolean; inView: boolean }) {
               <stop offset="1" stopColor="#1010ec" stopOpacity="0" />
             </radialGradient>
             <linearGradient id="dbRays" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#3333ff" stopOpacity=".45" />
-              <stop offset="1" stopColor="#3333ff" stopOpacity="0" />
+              <stop offset="0" stopColor="#3333ff" stopOpacity="0" />
+              <stop offset="1" stopColor="#3333ff" stopOpacity=".45" />
             </linearGradient>
           </defs>
-          <rect width="640" height="178" fill="url(#dbGlow)" />
+          <circle cx="320" cy="110" r="210" fill="url(#dbGlow)" />
           {[-62, -38, -14, 14, 38, 62].map((a, i) => {
             const r = (d: number) => (d * Math.PI) / 180;
             const px = (d: number) => (320 + Math.sin(r(d)) * 260).toFixed(1);
@@ -365,8 +353,7 @@ function FormatsCard({ reduced }: { reduced: boolean }) {
     return `M${150 + dir * 20},75 H${150 + dir * 46} V${t.y} H${t.x - dir * 16}`;
   };
   return (
-    <div className="db-frame db-hover">
-      <Brackets />
+    <div className="db-frame">
       <div className="db-card">
         <svg className="db-diagram" viewBox="0 0 300 150" role="group" aria-label="Formatos: feed, Reels, stories e anúncios">
           {tiles.map((_, i) => (
@@ -462,8 +449,7 @@ function CalendarCard({ reduced, inView }: { reduced: boolean; inView: boolean }
   const hk = hover >= 0 ? PLAN[hover] : undefined;
 
   return (
-    <div className="db-frame db-hover">
-      <Brackets />
+    <div className="db-frame">
       <div className="db-card">
         <svg className="db-diagram" viewBox="0 0 300 150" role="img" aria-label="Calendário de pautas do mês (ilustrativo)">
           {WEEK.map((d, i) => (
@@ -556,26 +542,15 @@ const DB_CSS = `
 .db-reveal{opacity:0;transform:translateY(24px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
 .db-reveal[data-in="true"]{opacity:1;transform:none}
 .db-frame{position:relative}
-.db-c{position:absolute;width:14px;height:14px;border-color:var(--db-line-strong);border-style:solid;border-width:0;pointer-events:none;transition:border-color .3s,transform .35s cubic-bezier(.2,.8,.2,1)}
-.db-c-tl{top:-7px;left:-7px;border-top-width:1.5px;border-left-width:1.5px}
-.db-c-tr{top:-7px;right:-7px;border-top-width:1.5px;border-right-width:1.5px}
-.db-c-bl{bottom:-7px;left:-7px;border-bottom-width:1.5px;border-left-width:1.5px}
-.db-c-br{bottom:-7px;right:-7px;border-bottom-width:1.5px;border-right-width:1.5px}
-.db-hover:hover>.db-c{border-color:var(--db-accent)}
-.db-hover:hover>.db-c-tl{transform:translate(-3px,-3px)}
-.db-hover:hover>.db-c-tr{transform:translate(3px,-3px)}
-.db-hover:hover>.db-c-bl{transform:translate(-3px,3px)}
-.db-hover:hover>.db-c-br{transform:translate(3px,3px)}
-.db-bento{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(22px,3cqw,34px)}
+.db-bento{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(48px,7cqw,88px) clamp(32px,6cqw,72px)}
 @container (min-width:720px){.db-bento{grid-template-columns:repeat(2,minmax(0,1fr))}.db-wide{grid-column:1 / -1}}
 .db-bento>.db-frame{display:flex;flex-direction:column}
 .db-bento>.db-frame>.db-card{flex:1}
-.db-card{background:linear-gradient(180deg,var(--db-raise),var(--db-card));background-image:linear-gradient(180deg,rgba(21,22,38,.92),rgba(16,17,22,.96)),repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 1px,transparent 1px 10px);border:1px solid var(--db-line);border-radius:18px;padding:clamp(16px,2.4cqw,24px);display:flex;flex-direction:column;gap:16px;transition:border-color .3s,box-shadow .35s}
-.db-card:hover{border-color:var(--db-line-strong);box-shadow:0 20px 60px -24px rgba(51,51,255,.55)}
-.db-card h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
-.db-card p{font-size:13.5px;line-height:1.55;color:var(--db-muted);max-width:44ch;margin-top:4px}
+.db-card{display:flex;flex-direction:column;gap:20px;background:none;border:0;padding:0}
+.db-card h3{font-size:18px;font-weight:600;letter-spacing:-.015em}
+.db-card p{font-size:15px;line-height:1.6;color:var(--db-muted);max-width:44ch;margin-top:6px}
 .db-diagram{width:100%;height:auto;overflow:visible}
-.db-wide-copy{display:grid;grid-template-columns:1fr;gap:16px;padding:0 24px 22px}
+.db-wide-copy{display:grid;grid-template-columns:1fr;gap:20px}
 @container (min-width:560px){.db-wide-copy{grid-template-columns:1fr 1fr}}
 .db-flow{stroke:var(--db-line-strong);fill:none;stroke-width:1.3;transition:stroke .3s}
 .db-flow-on{stroke:#8f92ff}
