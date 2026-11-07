@@ -44,7 +44,7 @@ Salve em `public/media/img/` (WebP com qualidade 90, pelo menos 900 px de largur
 
 O cartão mostra a foto em 4:5. Sem `photo`, aparece a inicial do nome.
 
-## Foto de produto com fundo recortado (câmera, cartão SD)
+## Foto de produto com fundo recortado (opcional)
 
 A foto precisa ter **fundo preto puro, sem brilho em volta** (o brilho azul é feito no site). Depois rode:
 

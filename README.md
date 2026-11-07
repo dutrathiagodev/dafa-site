@@ -32,7 +32,7 @@ Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano
 
 ## O que tem na página
 
-- **Hero** como o visor de uma câmera gravando (obturador, foco, REC), sobre uma grade animada em azul, com uma **câmera Sony ZV-E10 em 3D**: ela gira sozinha, você arrasta para virar e ela inclina com o mouse. A cada duas voltas (ou ao clicar) ela se desmonta e monta de novo.
+- **Hero** como o visor de uma câmera gravando (obturador, foco, REC), sobre uma grade animada em azul, com uma **câmera Sony ZV-E10 em 3D** (vídeo real, sólida): ela gira sozinha, você arrasta para virar para os lados e para cima/baixo, e ela inclina com o mouse. A cada duas voltas (ou ao clicar) ela se desmonta e monta de novo.
 - **Vídeo de apresentação** tocando sozinho, com botão de som
 - **Portfólio** em formato de Reels do Instagram: passe o mouse para abrir cada reel e clique para ver com som
 - **Processo** com um vídeo que acompanha o mouse/dedo e as abas das etapas
@@ -51,7 +51,6 @@ Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano
 - [GSAP 3](https://gsap.com) com ScrollTrigger, para as animações presas ao scroll
 - [Lenis](https://lenis.darkroom.engineering), para a rolagem suave
 - [lucide-react](https://lucide.dev), para os ícones
-- WebGL, para compor os vídeos recortados da câmera 3D
 - ESLint
 
 ## Como rodar

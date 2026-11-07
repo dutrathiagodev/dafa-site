@@ -4,14 +4,16 @@ slug: codebase-midia
 type: codebase
 module: midia
 topic_type: reference
-summary: Onde fica cada mídia em public/media, formatos e qualidade, como a câmera 3D do hero funciona (vídeos empilhados cor+máscara em WebGL) e os scripts de preparo.
-triggers: [public/media, CameraPhotos, zve10-giro, zve10-desmonta, preparar-video.sh, recortar-fundo.py, asset()]
+summary: Onde fica cada mídia em public/media, formatos e qualidade, como a câmera 3D do hero funciona (vídeos reais sem recorte, giro para os dois lados) e os scripts de preparo.
+triggers: [public/media, Camera3D, zve10-giro, zve10-desmonta, preparar-video.sh, recortar-fundo.py, asset()]
 related: [secoes.md, ../../COMO-ATUALIZAR.md]
 rag: include
 status: current
 updated_at: 2026-11-07
 verified_against:
-  - src/components/media/CameraPhotos.tsx
+  - src/components/media/camera-3d/Camera3D.tsx
+  - src/components/media/camera-3d/camera-controller.ts
+  - src/components/media/camera-3d/reversible-loop.ts
   - scripts/preparar-video.sh
   - scripts/recortar-fundo.py
   - src/content/site.ts
@@ -34,30 +36,38 @@ Todo caminho de `/media` passa por `asset()` (prefixo do GitHub Pages).
 
 **Qualidade é prioridade.** Nunca reduzir cor, nunca usar fundo semitransparente nas fotos de produto, nunca cortar o enquadramento dos reels.
 
-## Câmera 3D do hero (`media/CameraPhotos.tsx`)
+## Câmera 3D do hero (`media/camera-3d/`)
 
-Arquivos em `public/media/camera/`:
+Arquivos em `public/media/camera/`, todos 1280×720 e 24 fps:
 
-- `zve10-giro.mp4`: volta completa de 360° (208 quadros, 24 fps). O último quadro encosta no primeiro, então o loop é perfeito.
-- `zve10-desmonta.mp4`: abre em vista explodida, segura e volta montando (ida + espera + volta no mesmo arquivo).
-- `zve10-frente.webp`: primeiro quadro com transparência. Aparece na hora, enquanto os vídeos carregam (e é a versão parada para movimento reduzido ou sem WebGL).
+- `zve10-giro.mp4`: volta completa de 360° (208 quadros). O último quadro encosta no primeiro.
+- `zve10-giro-volta.mp4`: o mesmo giro invertido, para girar ao contrário sem travar.
+- `zve10-desmonta.mp4`: abre em vista explodida, segura e volta montando (ida + espera + volta).
+- `zve10-frente.webp`: primeiro quadro. Aparece na hora e é a versão parada (movimento reduzido).
 
-**Vídeos empilhados.** Cada quadro tem a cor (já sobre preto) na metade de cima e a máscara de recorte (branco = câmera) na metade de baixo. Um shader WebGL junta as duas e o fundo fica transparente de verdade, em qualquer navegador e com arquivo leve. O giro é codificado com keyframe a cada 6 quadros, para arrastar (buscar o tempo) ficar fluido.
+**Sem recorte.** A câmera é mostrada com o fundo original do vídeo, 100% sólida. A classe `.fade-edges` (globals.css) esfuma só as beiradas retas do vídeo no fundo do site, sem apagar o meio (aberta, a câmera ocupa quase a largura toda). O recorte por brilho deixava as partes pretas da câmera transparentes, então foi abandonado.
 
-**Comportamento:**
+**Fluidez.** O giro nunca "busca quadro a quadro" (isso trava). `reversible-loop.ts` sempre deixa o navegador **tocar** o vídeo e só muda a velocidade (`playbackRate`) para alcançar o ponto do arraste. Para trás, toca a cópia invertida a partir do mesmo ponto.
+
+**Comportamento** (`camera-controller.ts`):
 
 - gira sozinha;
-- **arrastar** para os lados vira a câmera, com inércia ao soltar;
-- o mouse por cima **inclina** (rotateX/Y com perspectiva);
+- **arrastar** na horizontal gira para os dois lados, com inércia ao soltar;
+- arrastar na vertical inclina para cima e para baixo (no toque, o vertical rola a página);
+- o mouse por cima inclina de leve;
 - **clique/toque** ou Enter, e sozinha a cada 2 voltas: volta para a frente e se desmonta;
-- flutua de leve;
-- pausa fora da tela.
+- aberta, arrastar gira a vista explodida para os lados e para cima/baixo; clique monta;
+- flutua e pausa fora da tela.
 
-**Origem.** Fotos e vídeos gerados no Gemini (Veo) a partir de fotos reais da Sony ZV-E10 + Sigma 16mm f/1.4. Os originais ficam fora do site, em `dafa/camera-gemini/`.
+Tempos e limites ficam em `config.ts`.
 
-## Cartão SD (`camera/cartao-sd-dafa.webp`)
+**Origem.** Vídeos gerados no Gemini (Veo) a partir de fotos reais da Sony ZV-E10 + Sigma 16mm f/1.4. Os originais ficam fora do site, em `dafa/camera-gemini/`.
 
-Foto real recortada (silhueta pelo casco convexo do cartão, 100% opaca). O brilho azul em volta é CSS, não faz parte da imagem.
+## Cartão SD (`camera/cartao-sd.mp4`)
+
+Vídeo real do cartão (gerado no Gemini a partir da foto), 600×600 em loop perfeito, com capa `cartao-sd-capa.webp`. Também sem recorte: a borda some no fundo com `.fade-edges` (prop `fadeEdges` do `LoopVideo`).
+
+`components/media/LoopVideo.tsx` serve para qualquer vídeo curto em loop: sem som, toca só na tela e fica parado com movimento reduzido.
 
 ## Scripts (`scripts/`)
 
