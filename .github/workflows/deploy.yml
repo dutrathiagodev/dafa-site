@@ -49,3 +49,6 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # O GitHub às vezes demora pra liberar o site; 10 min (padrão) não basta.
+          timeout: 1800000
