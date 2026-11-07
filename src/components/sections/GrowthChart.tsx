@@ -3,50 +3,54 @@
 import { useRef } from "react";
 import { brand } from "@/content/site";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
-
 import { Eyebrow } from "@/components/ui/section-heading";
 
-const PHASES = [
-  {
-    text: "postar por postar.",
-    color: "#ff6b86",
-    d: "M50,230 L78,172 L100,204 L124,140 L150,192 L174,160 L196,216 L220,118 L246,178 L270,150 L294,204 L320,110 L344,168 L362,132",
-  },
-  { text: "constância.", color: "#e9eaff", d: "M50,236 L362,148" },
-  { text: "constância + direção.", color: "#a9abff", d: "M50,242 C210,238 305,200 362,36" },
-];
-const STROKES = ["#ff4f72", "#e9eaff", "url(#expGrad)"];
-const GLYPHS = "abcdefghijklmnopqrstuvwxyz";
-
-/**
- * Gráfico em motion design: uma animação contínua em loop (como um vídeo),
- * sem cortes. Os eixos se desenham, cada linha entra com o texto sendo
- * digitado, sai, e a próxima entra; no fim a curva azul acende e o ciclo
- * recomeça. Toca só quando está na tela.
+/*
+ * Roteiro (como o vídeo de referência):
+ * 1. o gráfico nasce pequeno no canto e cresce enquanto a linha é desenhada;
+ * 2. o texto é digitado, os pontinhos animam, embaralha e some;
+ * 3. na última fase a linha muda de cor enquanto desenha (vermelho → verde → azul),
+ *    o fundo dá um flash e a curva "quebra" o gráfico saindo pelo topo;
+ * 4. tudo some e o loop recomeça.
  */
+const JAGGED =
+  "M50,230 L78,172 L100,204 L124,140 L150,192 L174,160 L196,216 L220,118 L246,178 L270,150 L294,204 L320,110 L344,168 L362,132";
+const LINEAR = "M50,236 L362,148";
+const EXP = "M50,242 C210,238 305,200 362,36";
+const BREAK = "M362,36 C366,8 369,-30 372,-96";
+const GLYPHS = "abcdefghijklmnopqrstuvwxyz";
+const ORIGIN = "40 260"; // canto dos eixos (o gráfico cresce a partir daqui)
+
 export default function GrowthChart() {
   const root = useRef<HTMLElement>(null);
   const label = useRef<HTMLSpanElement>(null);
 
   useGSAP(
     () => {
-      const lines = gsap.utils.toArray<SVGPathElement>("[data-line]");
-      const axes = root.current!.querySelector("[data-axes]");
-      const grid = root.current!.querySelector("[data-grid]");
-      const glow = root.current!.querySelector("[data-chart-glow]");
-      const svg = root.current!.querySelector("[data-chart-svg]");
+      const q = gsap.utils.selector(root);
+      const [jag, lin, exp, brk] = q("[data-line]") as unknown as SVGPathElement[];
+      const chart = q("[data-chart]")[0];
+      const axes = q("[data-axes]")[0];
+      const grid = q("[data-grid]")[0];
+      const glow = q("[data-chart-glow]")[0];
+      const flash = q("[data-flash]")[0];
+      const quote = q("[data-chart-quote]")[0];
       const el = label.current!;
 
       if (prefersReducedMotion()) {
-        gsap.set(lines, { strokeDashoffset: 0, opacity: (i: number) => (i === 2 ? 1 : 0.18) });
-        gsap.set([axes, glow], { strokeDashoffset: 0, opacity: 1 });
-        el.textContent = PHASES[2].text;
-        el.style.color = PHASES[2].color;
+        gsap.set([jag, lin], { opacity: 0 });
+        gsap.set([exp, brk, axes], { strokeDashoffset: 0 });
+        gsap.set(glow, { opacity: 1 });
+        el.textContent = "constância + direção";
+        el.style.color = "#a9abff";
         return;
       }
 
-      // Digita o texto letra por letra
-      const typeIn = (text: string, color: string, duration: number) => {
+      const setText = (t: string) => {
+        el.textContent = t;
+      };
+      // Digitação letra por letra
+      const type = (text: string, color: string, duration: number) => {
         const st = { n: 0 };
         return gsap.to(st, {
           n: text.length,
@@ -54,71 +58,100 @@ export default function GrowthChart() {
           ease: "none",
           onStart: () => {
             el.style.color = color;
+            el.style.opacity = "1";
           },
-          onUpdate: () => {
-            el.textContent = text.slice(0, Math.round(st.n));
-          },
+          onUpdate: () => setText(text.slice(0, Math.round(st.n))),
         });
       };
-      // Some com um embaralhado rápido (glitch de edição)
-      const glitchOut = (text: string, duration: number) => {
+      // Pontinhos: "texto." → "texto.." → "texto..."
+      const dots = (text: string) =>
+        gsap
+          .timeline()
+          .call(() => setText(`${text}.`))
+          .call(() => setText(`${text}..`), [], 0.35)
+          .call(() => setText(`${text}...`), [], 0.7)
+          .to({}, { duration: 0.35 });
+      // Embaralha e some (glitch de edição)
+      const glitch = (text: string, duration: number) => {
         const st = { p: 0 };
         return gsap.to(st, {
           p: 1,
           duration,
           ease: "power1.in",
           onUpdate: () => {
-            const keep = Math.round(text.length * (1 - st.p));
-            el.textContent = text
-              .slice(0, keep)
-              .split("")
-              .map((c) => (c !== " " && Math.random() < 0.45 ? GLYPHS[Math.floor(Math.random() * GLYPHS.length)] : c))
-              .join("");
+            const keep = Math.round(text.length * (1 - st.p * 0.6));
+            setText(
+              text
+                .slice(0, keep)
+                .split("")
+                .map((c) => (c !== " " && Math.random() < 0.5 ? GLYPHS[(Math.random() * 26) | 0] : c))
+                .join(""),
+            );
           },
-          onComplete: () => {
-            el.textContent = "";
-          },
+          onComplete: () => setText(""),
         });
       };
 
-      const tl = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: "none" } });
-      tl.set(lines, { strokeDashoffset: 1, opacity: 1 })
-        .set(glow, { opacity: 0 })
-        .set(svg, { scale: 1, transformOrigin: "50% 60%" })
-        .call(() => {
-          el.textContent = "";
-        })
-        .fromTo(axes, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" })
-        .fromTo(grid, { opacity: 0 }, { opacity: 1, duration: 0.6 }, "<0.2");
+      // Gráfico nasce pequeno e cresce enquanto a linha é desenhada
+      const grow = (line: SVGPathElement, drawDur: number) =>
+        gsap
+          .timeline()
+          .set(chart, { opacity: 1 })
+          .set([axes, line], { strokeDashoffset: 1 })
+          .fromTo(chart, { scale: 0.12, svgOrigin: ORIGIN }, { scale: 1, svgOrigin: ORIGIN, duration: drawDur * 0.85, ease: "expo.out" }, 0)
+          .to(axes, { strokeDashoffset: 0, duration: drawDur * 0.45, ease: "power2.out" }, 0)
+          .fromTo(grid, { opacity: 0 }, { opacity: 1, duration: drawDur * 0.6 }, 0.1)
+          .to(line, { strokeDashoffset: 0, duration: drawDur, ease: "power2.inOut" }, 0.15);
 
-      PHASES.forEach((p, i) => {
-        const line = lines[i];
-        const last = i === PHASES.length - 1;
-        tl.add(typeIn(p.text, p.color, 0.7), ">-0.1").to(
-          line,
-          { strokeDashoffset: 0, duration: last ? 2 : 1.7, ease: "power1.inOut" },
-          "<",
-        );
-        if (last) {
-          tl.to(glow, { opacity: 1, duration: 0.8 }, "-=0.9")
-            .to(svg, { scale: 1.04, duration: 2.6, ease: "sine.inOut" }, "<")
-            .to("[data-chart-quote]", { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "<0.3")
-            .to({}, { duration: 1.6 })
-            // Saída: tudo se apaga suavemente e o loop recomeça
-            .add(glitchOut(p.text, 0.5))
-            .to(line, { strokeDashoffset: -1, duration: 1, ease: "power1.in" }, "<")
-            .to(glow, { opacity: 0, duration: 0.6 }, "<")
-            .to(axes, { strokeDashoffset: -1, duration: 0.8, ease: "power2.in" }, "<0.3")
-            .to(grid, { opacity: 0, duration: 0.5 }, "<")
-            .to(svg, { scale: 1, duration: 0.8 }, "<");
-        } else {
-          tl.to({}, { duration: 1 })
-            .add(glitchOut(p.text, 0.45))
-            .to(line, { strokeDashoffset: -1, duration: 0.9, ease: "power1.in" }, "<");
-        }
-      });
+      // Gráfico escurece e some
+      const fadeOut = (line: SVGPathElement) =>
+        gsap
+          .timeline()
+          .to(chart, { opacity: 0.25, duration: 0.35, ease: "power1.out" })
+          .to(chart, { opacity: 0, duration: 0.35 })
+          .set(line, { strokeDashoffset: 1 });
 
-      gsap.set("[data-chart-quote]", { opacity: 0, y: 16 });
+      const tl = gsap.timeline({ repeat: -1, paused: true });
+      tl.set([jag, lin, exp, brk], { strokeDashoffset: 1 })
+        .set(exp, { stroke: "#ff4f72" })
+        .set([glow, flash], { opacity: 0 })
+        .set(chart, { opacity: 0, scale: 1, svgOrigin: ORIGIN })
+        .call(() => setText(""));
+
+      // 1. postar por postar
+      tl.add(grow(jag, 1.6))
+        .add(type("postar por postar", "#ff6b86", 0.7), "<0.1")
+        .add(dots("postar por postar"), ">")
+        .add(glitch("postar por postar", 0.45), ">0.2")
+        .add(fadeOut(jag), "<0.05");
+
+      // 2. constância
+      tl.add(grow(lin, 1.5), ">0.15")
+        .add(type("constância", "#e9eaff", 0.55), "<0.1")
+        .add(dots("constância"), ">")
+        .add(glitch("constância", 0.45), ">0.2")
+        .add(fadeOut(lin), "<0.05");
+
+      // 3. constância + direção: cor muda enquanto desenha, flash e quebra
+      tl.add(grow(exp, 2.2), ">0.15")
+        .to(exp, { keyframes: { stroke: ["#ff4f72", "#ffb347", "#3ddc84", "#6f6bff", "#8f92ff"] }, duration: 2.2, ease: "none" }, "<0.15")
+        .add(type("constância + direção", "#ffffff", 0.9), "<")
+        .to(glow, { opacity: 1, duration: 0.8 }, ">-0.5")
+        .fromTo(flash, { opacity: 0 }, { opacity: 0.55, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" }, "<")
+        .to(el, { color: "#a9abff", duration: 0.6 }, "<")
+        .to(quote, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, "<0.2")
+        // a quebra: a curva sai do gráfico pelo topo e a "câmera" se afasta
+        .to(brk, { strokeDashoffset: 0, duration: 0.9, ease: "power2.in" }, ">0.4")
+        .to(chart, { scale: 0.9, svgOrigin: "205 150", duration: 1.4, ease: "power2.out" }, "<")
+        .to(el, { opacity: 0.45, duration: 0.8 }, "<0.4")
+        .to({}, { duration: 1.4 })
+        // saída
+        .add(glitch("constância + direção", 0.5))
+        .to(chart, { opacity: 0, duration: 0.7 }, "<")
+        .to(glow, { opacity: 0, duration: 0.6 }, "<")
+        .to({}, { duration: 0.4 });
+
+      gsap.set(quote, { opacity: 0, y: 16 });
       ScrollTrigger.create({
         trigger: root.current,
         start: "top 75%",
@@ -132,6 +165,11 @@ export default function GrowthChart() {
   return (
     <section ref={root} aria-labelledby="direcao-title" className="relative overflow-hidden py-24 sm:py-32">
       <div className="absolute inset-0 bg-[radial-gradient(50%_45%_at_50%_45%,rgba(16,16,236,.18),transparent_70%)]" />
+      <div
+        data-flash
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_40%_at_50%_42%,rgba(143,146,255,.35),transparent_70%)] opacity-0"
+      />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 text-center">
         <Eyebrow>Por que direção importa</Eyebrow>
         <h2 id="direcao-title" className="sr-only">
@@ -139,69 +177,69 @@ export default function GrowthChart() {
           em linha e constância com direção cresce cada vez mais.
         </h2>
 
-        <svg
-          data-chart-svg
-          viewBox="0 0 400 300"
-          className="mt-8 w-[min(560px,92vw)] overflow-visible"
-          aria-hidden="true"
-        >
+        <svg viewBox="0 0 400 300" className="mt-10 w-[min(560px,92vw)] overflow-visible" aria-hidden="true">
           <defs>
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" result="b" />
+              <feGaussianBlur stdDeviation="5" result="b" />
               <feMerge>
                 <feMergeNode in="b" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            <linearGradient id="expGrad" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stopColor="#3333ff" />
-              <stop offset="1" stopColor="#b8baff" />
-            </linearGradient>
           </defs>
-          <g data-grid>
-            {Array.from({ length: 9 }, (_, i) => (
-              <line key={`v${i}`} x1={40 + i * 40} x2={40 + i * 40} y1="30" y2="260" stroke="rgba(255,255,255,.05)" />
-            ))}
-            {Array.from({ length: 6 }, (_, i) => (
-              <line key={`h${i}`} x1="40" x2="370" y1={30 + i * 46} y2={30 + i * 46} stroke="rgba(255,255,255,.05)" />
-            ))}
-          </g>
-          <path
-            data-axes
-            d="M40 30V260H370"
-            pathLength={1}
-            strokeDasharray="1"
-            fill="none"
-            stroke="rgba(244,244,248,.75)"
-            strokeWidth="2"
-          />
-          <g data-chart-glow opacity="0">
-            <path d={PHASES[2].d} fill="none" stroke="#3333ff" strokeWidth="14" opacity=".35" filter="url(#glow)" />
-          </g>
-          {PHASES.map((p, i) => (
+          <g data-chart opacity="0">
+            <g data-grid>
+              {Array.from({ length: 9 }, (_, i) => (
+                <line key={`v${i}`} x1={40 + i * 40} x2={40 + i * 40} y1="30" y2="260" stroke="rgba(255,255,255,.06)" />
+              ))}
+              {Array.from({ length: 6 }, (_, i) => (
+                <line key={`h${i}`} x1="40" x2="370" y1={30 + i * 46} y2={30 + i * 46} stroke="rgba(255,255,255,.06)" />
+              ))}
+            </g>
             <path
-              key={p.text}
-              data-line
-              d={p.d}
+              data-axes
+              d="M40 30V260H370"
               pathLength={1}
               strokeDasharray="1"
               strokeDashoffset="1"
               fill="none"
-              stroke={STROKES[i]}
-              strokeWidth={i === 2 ? 3 : 2.4}
-              strokeLinejoin="round"
+              stroke="rgba(244,244,248,.8)"
+              strokeWidth="2"
               strokeLinecap="round"
-              filter="url(#glow)"
             />
-          ))}
+            <g data-chart-glow opacity="0">
+              <path d={EXP} fill="none" stroke="#3333ff" strokeWidth="16" opacity=".35" filter="url(#glow)" />
+            </g>
+            {[
+              { d: JAGGED, stroke: "#ff4f72", w: 2.4 },
+              { d: LINEAR, stroke: "#5ee58b", w: 2.4 },
+              { d: EXP, stroke: "#ff4f72", w: 3 },
+              { d: BREAK, stroke: "#8f92ff", w: 3 },
+            ].map((l) => (
+              <path
+                key={l.d}
+                data-line
+                d={l.d}
+                pathLength={1}
+                strokeDasharray="1"
+                strokeDashoffset="1"
+                fill="none"
+                stroke={l.stroke}
+                strokeWidth={l.w}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                filter="url(#glow)"
+              />
+            ))}
+          </g>
         </svg>
 
         <p
           aria-hidden="true"
-          className="mt-6 flex h-[1.3em] items-center text-[clamp(1.6rem,4.5vw,3rem)] font-semibold tracking-tight"
+          className="mt-8 flex h-[1.3em] items-center text-[clamp(1.6rem,4.5vw,3rem)] font-semibold tracking-tight"
         >
           <span ref={label} className="text-[#ff6b86]" />
-          <span className="animate-rec ml-1 inline-block h-[0.9em] w-[3px] bg-current text-white/70" />
+          <span className="animate-rec ml-1 inline-block h-[0.9em] w-[3px] bg-white/70" />
         </p>
 
         <blockquote data-chart-quote className="mt-8 max-w-2xl text-lg leading-snug text-muted sm:text-2xl">
