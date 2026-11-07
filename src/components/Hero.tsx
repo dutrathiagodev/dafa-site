@@ -1,22 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
 import { ArrowDown } from "lucide-react";
 import LightArcs from "./LightArcs";
+import CameraPhotos from "./CameraPhotos";
 import { WhatsAppIcon } from "./brand-icons";
 import { brand, contact, whatsappUrl } from "@/content/site";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
-
-// three.js só carrega no navegador e fora do bundle inicial
-const Camera3D = dynamic(() => import("./Camera3D"), {
-  ssr: false,
-  loading: () => (
-    <div className="grid h-full w-full place-items-center">
-      <div className="size-40 rounded-full bg-electric/25 blur-3xl" />
-    </div>
-  ),
-});
 
 /** Cantos do enquadramento do visor. */
 function Corners({ className = "" }: { className?: string }) {
@@ -106,9 +96,10 @@ export default function Hero() {
     <section
       id="inicio"
       ref={root}
-      className="grain relative isolate min-h-[100svh] overflow-hidden"
+      className="relative isolate min-h-[100svh] overflow-hidden"
     >
       <LightArcs className="opacity-55" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-48 bg-gradient-to-b from-transparent to-bg" />
 
       {/* Obturador abrindo */}
       <div aria-hidden="true" className="animate-shutter absolute inset-x-0 top-0 z-30 h-1/2 origin-top bg-black" />
@@ -192,7 +183,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <Camera3D className="h-[46svh] w-full sm:h-[52svh] lg:h-[74svh]" />
+        <CameraPhotos className="mx-auto aspect-square h-auto w-full max-w-[520px] lg:max-w-[640px]" />
       </div>
     </section>
   );
