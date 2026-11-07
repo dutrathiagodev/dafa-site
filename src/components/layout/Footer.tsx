@@ -38,13 +38,6 @@ export default function Footer() {
       </div>
       <p className="mx-auto mt-10 max-w-[1320px] text-xs text-muted/60">
         © {new Date().getFullYear()} DAFA — Gerenciamento de Conteúdo.
-        <span className="mt-1 block">
-          Modelo 3D da câmera gerado com{" "}
-          <a href="https://www.meshy.ai/" target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:underline">
-            Meshy
-          </a>{" "}
-          (CC BY 4.0).
-        </span>
       </p>
     </footer>
   );
