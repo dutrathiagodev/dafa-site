@@ -36,8 +36,8 @@ export default function Header() {
           <Image
             src="/media/img/logo-dafa-crop.png"
             alt="DAFA — Gerenciamento de Conteúdo"
-            width={1300}
-            height={330}
+            width={1391}
+            height={341}
             priority
             className="h-8 w-auto sm:h-9"
           />
