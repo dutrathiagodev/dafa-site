@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { ArrowUpRight, Expand, Play } from "lucide-react";
 import { projects, type Project } from "@/content/site";
-import { useMediaModal } from "./VideoModal";
+import { useMediaModal } from "@/components/media/VideoModal";
 import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
 function ProjectCard({ p, index }: { p: Project; index: number }) {

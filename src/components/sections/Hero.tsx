@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { ArrowDown } from "lucide-react";
-import GridBackground from "./GridBackground";
-import CameraPhotos from "./CameraPhotos";
-import { WhatsAppIcon } from "./brand-icons";
+import GridBackground from "@/components/ui/grid-background";
+import CameraPhotos from "@/components/media/CameraPhotos";
+import { WhatsAppIcon } from "@/components/ui/brand-icons";
 import { brand, contact, whatsappUrl } from "@/content/site";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 

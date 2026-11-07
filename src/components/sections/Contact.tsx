@@ -1,6 +1,6 @@
 import { ArrowUpRight, Mail, Plus } from "lucide-react";
-import GridBackground from "./GridBackground";
-import { InstagramIcon, WhatsAppIcon } from "./brand-icons";
+import GridBackground from "@/components/ui/grid-background";
+import { InstagramIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import {
   brand,
   contact,

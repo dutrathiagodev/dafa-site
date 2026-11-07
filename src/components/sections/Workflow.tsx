@@ -1,4 +1,4 @@
-import DafaWorkflowBento from "./ui/dafa-workflow-bento";
+import DafaWorkflowBento from "@/components/ui/dafa-workflow-bento";
 
 export default function Workflow() {
   return (

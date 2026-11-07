@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { WhatsAppIcon } from "./brand-icons";
+import { WhatsAppIcon } from "@/components/ui/brand-icons";
 import { whatsappUrl } from "@/content/site";
 
 /** Botão flutuante: aparece depois da primeira tela e some com o modal aberto. */
