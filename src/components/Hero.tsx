@@ -1,98 +1,89 @@
 "use client";
 
-import { useRef } from "react";
-import {
-  Aperture,
-  ArrowDown,
-  Camera,
-  Clapperboard,
-  Film,
-  Megaphone,
-  Mic,
-  PenLine,
-  TrendingUp,
-  type LucideIcon,
-} from "lucide-react";
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { ArrowDown } from "lucide-react";
 import LightArcs from "./LightArcs";
 import { WhatsAppIcon } from "./brand-icons";
 import { brand, contact, whatsappUrl } from "@/content/site";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 
-/** Ícones de ferramentas flutuando em volta do título (seguem o mouse). */
-const floaters: {
-  Icon: LucideIcon;
-  x: string;
-  y: string;
-  depth: number;
-  mobile?: boolean;
-}[] = [
-  { Icon: Camera, x: "9%", y: "26%", depth: 1.2, mobile: true },
-  { Icon: Clapperboard, x: "86%", y: "22%", depth: 0.9, mobile: true },
-  { Icon: Mic, x: "16%", y: "66%", depth: 0.6 },
-  { Icon: Aperture, x: "80%", y: "62%", depth: 1.4 },
-  { Icon: Film, x: "4%", y: "47%", depth: 0.4 },
-  { Icon: Megaphone, x: "93%", y: "44%", depth: 0.7 },
-  { Icon: PenLine, x: "28%", y: "14%", depth: 0.5 },
-  { Icon: TrendingUp, x: "70%", y: "12%", depth: 1, mobile: true },
-];
+// three.js só carrega no navegador e fora do bundle inicial
+const Camera3D = dynamic(() => import("./Camera3D"), {
+  ssr: false,
+  loading: () => (
+    <div className="grid h-full w-full place-items-center">
+      <div className="size-40 rounded-full bg-electric/25 blur-3xl" />
+    </div>
+  ),
+});
 
+/** Cantos do enquadramento do visor. */
+function Corners({ className = "" }: { className?: string }) {
+  const c = "absolute size-5 border-white/50 sm:size-7";
+  return (
+    <div className={className} aria-hidden="true">
+      <span className={`${c} top-0 left-0 border-t border-l`} />
+      <span className={`${c} top-0 right-0 border-t border-r`} />
+      <span className={`${c} bottom-0 left-0 border-b border-l`} />
+      <span className={`${c} right-0 bottom-0 border-r border-b`} />
+    </div>
+  );
+}
+
+/**
+ * Abertura: a tela é o visor de uma câmera gravando.
+ * Obturador abrindo, título entrando em foco, HUD com REC e timecode,
+ * ponto de autofoco seguindo o mouse e a câmera DAFA em 3D.
+ */
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
+  const timecode = useRef<HTMLSpanElement>(null);
+
+  // Timecode HH:MM:SS:FF a 24 fps desde que a página abriu
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const start = performance.now();
+    let raf = 0;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const tick = () => {
+      const f = Math.floor(((performance.now() - start) / 1000) * 24);
+      const s = Math.floor(f / 24);
+      if (timecode.current)
+        timecode.current.textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(f % 24)}`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   useGSAP(
     () => {
-      const reduce = prefersReducedMotion();
-      if (reduce) return;
+      if (prefersReducedMotion()) return;
 
-      // Entrada do título palavra por palavra
-      gsap
-        .timeline({ defaults: { ease: "expo.out" } })
-        .from("[data-hero-word]", {
-          yPercent: 115,
-          rotate: 4,
-          duration: 1.4,
-          stagger: 0.09,
-          delay: 0.15,
-        })
-        .from(
-          "[data-hero-fade]",
-          { autoAlpha: 0, y: 24, duration: 1.1, stagger: 0.1 },
-          "-=1",
-        )
-        .from(
-          "[data-floater]",
-          {
-            autoAlpha: 0,
-            scale: 0.4,
-            duration: 1.2,
-            stagger: 0.06,
-            ease: "back.out(1.6)",
-          },
-          "-=1.1",
-        );
-
-      // Paralaxe com o mouse (desktop)
-      const items = gsap.utils.toArray<HTMLElement>("[data-floater]");
-      const movers = items.map((el) => ({
-        x: gsap.quickTo(el, "x", { duration: 1.1, ease: "power3.out" }),
-        y: gsap.quickTo(el, "y", { duration: 1.1, ease: "power3.out" }),
-        d: Number(el.dataset.depth),
-      }));
+      // Ponto de autofoco seguindo o mouse
+      const reticle = root.current!.querySelector<HTMLElement>("[data-reticle]")!;
+      const x = gsap.quickTo(reticle, "x", { duration: 0.45, ease: "power3.out" });
+      const y = gsap.quickTo(reticle, "y", { duration: 0.45, ease: "power3.out" });
       const onMove = (e: PointerEvent) => {
         if (e.pointerType !== "mouse") return;
-        const nx = e.clientX / window.innerWidth - 0.5;
-        const ny = e.clientY / window.innerHeight - 0.5;
-        movers.forEach((m) => {
-          m.x(nx * 70 * m.d);
-          m.y(ny * 50 * m.d);
-        });
+        const r = root.current!.getBoundingClientRect();
+        gsap.to(reticle, { autoAlpha: 1, duration: 0.3 });
+        x(e.clientX - r.left);
+        y(e.clientY - r.top);
       };
-      window.addEventListener("pointermove", onMove);
+      const onLeave = () => gsap.to(reticle, { autoAlpha: 0, duration: 0.3 });
+      const onDown = () =>
+        gsap.fromTo(reticle, { scale: 1.35 }, { scale: 1, duration: 0.5, ease: "back.out(3)" });
+      const sec = root.current!;
+      sec.addEventListener("pointermove", onMove);
+      sec.addEventListener("pointerleave", onLeave);
+      sec.addEventListener("pointerdown", onDown);
 
-      // Ao rolar, o conteúdo do hero sobe e desfoca levemente
+      // Ao rolar, o texto sobe e some de leve
       gsap.to("[data-hero-content]", {
-        yPercent: -18,
-        autoAlpha: 0.15,
+        yPercent: -12,
+        autoAlpha: 0.2,
         ease: "none",
         scrollTrigger: {
           trigger: root.current,
@@ -102,102 +93,106 @@ export default function Hero() {
         },
       });
 
-      return () => window.removeEventListener("pointermove", onMove);
+      return () => {
+        sec.removeEventListener("pointermove", onMove);
+        sec.removeEventListener("pointerleave", onLeave);
+        sec.removeEventListener("pointerdown", onDown);
+      };
     },
     { scope: root },
   );
-
-  const words = ["Conteúdo", "com"];
 
   return (
     <section
       id="inicio"
       ref={root}
-      className="grain relative isolate flex min-h-[100svh] items-center overflow-hidden pt-24 pb-28"
+      className="grain relative isolate min-h-[100svh] overflow-hidden"
     >
-      <LightArcs />
+      <LightArcs className="opacity-55" />
 
-      {floaters.map(({ Icon, x, y, depth, mobile }, i) => (
-        <div
-          key={i}
-          data-floater
-          data-depth={depth}
-          className={`absolute z-0 ${mobile ? "" : "hidden md:block"}`}
-          style={{ left: x, top: y }}
-          aria-hidden="true"
-        >
-          <div
-            className="glass animate-float grid size-11 place-items-center rounded-2xl text-[#b8baff] shadow-[0_0_30px_-6px_rgba(51,51,255,.8)] sm:size-14"
-            style={{ animationDelay: `${i * -0.7}s` }}
-          >
-            <Icon className="size-5 glow-blue sm:size-6" strokeWidth={1.6} />
-          </div>
+      {/* Obturador abrindo */}
+      <div aria-hidden="true" className="animate-shutter absolute inset-x-0 top-0 z-30 h-1/2 origin-top bg-black" />
+      <div aria-hidden="true" className="animate-shutter absolute inset-x-0 bottom-0 z-30 h-1/2 origin-bottom bg-black" />
+
+      {/* HUD do visor */}
+      <div
+        aria-hidden="true"
+        className="animate-hud pointer-events-none absolute inset-x-4 top-[84px] bottom-4 z-20 font-mono text-[10px] tracking-[0.18em] text-white/60 uppercase sm:inset-x-8 sm:bottom-8 sm:text-[11px]"
+      >
+        <Corners className="absolute inset-0" />
+        <div className="absolute top-3 left-4 flex items-center gap-2 sm:top-4 sm:left-6">
+          <span className="animate-rec size-2 rounded-full bg-[#ff3b4f] shadow-[0_0_10px_#ff3b4f]" />
+          <span className="text-white/85">Rec</span>
+          <span ref={timecode} className="tabular-nums">00:00:00:00</span>
         </div>
-      ))}
+        <div className="absolute top-3 right-4 sm:top-4 sm:right-6">4K · 24 fps</div>
+        <div className="absolute bottom-3 left-4 hidden gap-5 sm:bottom-4 sm:left-6 sm:flex">
+          <span>ISO 400</span>
+          <span>f/2.8</span>
+          <span>1/50</span>
+        </div>
+        <div className="absolute right-4 bottom-3 flex items-center gap-2 sm:right-6 sm:bottom-4">
+          <span className="hidden sm:inline">{contact.city} · {contact.state}</span>
+          <span className="relative h-2.5 w-5 rounded-[2px] border border-white/60 after:absolute after:top-1/2 after:-right-[3px] after:h-1 after:w-[2px] after:-translate-y-1/2 after:bg-white/60">
+            <span className="absolute inset-[1px] right-[25%] bg-white/70" />
+          </span>
+        </div>
+      </div>
+
+      {/* Ponto de autofoco */}
+      <div
+        data-reticle
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute top-0 left-0 z-20 -mt-7 -ml-7 size-14 opacity-0"
+      >
+        <Corners className="absolute inset-0 [&>span]:size-3 [&>span]:border-[#9a9cff]" />
+        <span className="absolute top-1/2 left-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#9a9cff]" />
+      </div>
 
       <div
         data-hero-content
-        className="relative z-10 mx-auto w-full max-w-[1100px] px-4 text-center sm:px-8"
+        className="relative z-10 mx-auto grid min-h-[100svh] max-w-[1320px] items-center gap-2 px-6 pt-28 pb-16 sm:px-12 lg:grid-cols-[1.05fr_1fr] lg:gap-6 lg:pb-12"
       >
-        <p
-          data-hero-fade
-          className="glass mx-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs tracking-wide text-muted sm:text-sm"
-        >
-          <span className="size-1.5 rounded-full bg-electric shadow-[0_0_12px_#3333ff]" />
-          {contact.city} – {contact.state} e região
-        </p>
+        <div className="text-center lg:text-left">
+          <p className="animate-focus text-xs tracking-[0.3em] text-muted uppercase [animation-delay:1s]">
+            Produção audiovisual · Conteúdo · Tráfego
+          </p>
 
-        <h1 className="mt-7 text-[clamp(3rem,11vw,8.5rem)] leading-[0.92] font-bold tracking-[-0.045em]">
-          <span className="block">
-            {words.map((w, i) => (
-              <span key={w}>
-                {i > 0 && " "}
-                <span className="inline-block overflow-hidden pb-[0.06em] align-bottom">
-                  <span data-hero-word className="inline-block">
-                    {w}
-                  </span>
-                </span>
+          <h1 className="mt-5 text-[clamp(3rem,8.4vw,7.25rem)] leading-[0.9] font-bold tracking-[-0.05em]">
+            <span className="animate-focus block [animation-delay:1.05s]">Conteúdo</span>
+            <span className="animate-focus block [animation-delay:1.2s]">
+              com{" "}
+              <span className="text-gradient font-display pr-[0.06em] font-bold tracking-[-0.02em] italic">
+                direção.
               </span>
-            ))}
-          </span>{" "}
-          <span className="block overflow-hidden pb-[0.12em]">
-            <span
-              data-hero-word
-              className="text-gradient inline-block pr-[0.08em] font-display font-bold italic tracking-[-0.02em]"
-            >
-              direção.
             </span>
-          </span>
-        </h1>
+          </h1>
 
-        <p
-          data-hero-fade
-          className="mx-auto mt-6 max-w-[620px] text-base leading-relaxed text-muted sm:text-lg"
-        >
-          {brand.pitch}
-        </p>
+          <p className="animate-focus mx-auto mt-6 max-w-[520px] text-base leading-relaxed text-muted [animation-delay:1.4s] sm:text-lg lg:mx-0">
+            {brand.pitch}
+          </p>
 
-        <div
-          data-hero-fade
-          className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
-        >
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex h-14 items-center gap-3 rounded-full bg-electric px-7 text-base font-semibold shadow-[0_10px_50px_-10px_#3333ff] transition hover:bg-[#4a4aff] hover:shadow-[0_10px_60px_-6px_#3333ff]"
-          >
-            <WhatsAppIcon className="size-5" />
-            Solicite um orçamento
-          </a>
-          <a
-            href="#projetos"
-            className="inline-flex h-14 items-center gap-2 rounded-full border border-white/15 px-7 text-base font-medium text-ink transition hover:border-white/40 hover:bg-white/5"
-          >
-            Ver projetos
-            <ArrowDown className="size-4" />
-          </a>
+          <div className="animate-focus mt-8 flex flex-col items-center gap-3 [animation-delay:1.55s] sm:flex-row sm:justify-center lg:justify-start">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex h-14 items-center gap-3 rounded-full bg-electric px-7 text-base font-semibold shadow-[0_10px_50px_-10px_#3333ff] transition hover:bg-[#4a4aff] hover:shadow-[0_10px_60px_-6px_#3333ff]"
+            >
+              <WhatsAppIcon className="size-5" />
+              Solicite um orçamento
+            </a>
+            <a
+              href="#projetos"
+              className="inline-flex h-14 items-center gap-2 rounded-full border border-white/15 px-7 text-base font-medium text-ink transition hover:border-white/40 hover:bg-white/5"
+            >
+              Ver projetos
+              <ArrowDown className="size-4" />
+            </a>
+          </div>
         </div>
+
+        <Camera3D className="h-[46svh] w-full sm:h-[52svh] lg:h-[74svh]" />
       </div>
     </section>
   );
