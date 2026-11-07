@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DAFA — Gerenciamento de Conteúdo · Site portfólio
 
-## Getting Started
+Site institucional e portfólio da DAFA (Santo Antônio da Platina – PR).
 
-First, run the development server:
+**Stack:** Next.js 15 (App Router) · Tailwind CSS 4 · GSAP + ScrollTrigger · Lenis · lucide-react.
+
+## Rodar
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # build de produção
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estrutura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Caminho | O que é |
+|---|---|
+| `src/content/site.ts` | **Todo o conteúdo editável** (contatos, serviços, projetos, FAQ) |
+| `src/app/layout.tsx` | Fontes e metadata de SEO |
+| `src/app/{sitemap,robots,manifest,opengraph-image}.ts(x)` | SEO técnico e imagem de compartilhamento |
+| `src/lib/structured-data.ts` | JSON-LD (negócio local, site e FAQ) |
+| `src/components/` | Seções da página |
+| `src/components/ui/` | Peças reutilizáveis (cartão SD, bento animado) |
+| `public/media/` | Vídeos, capas e frames já otimizados para web |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Animações
 
-## Learn More
+- **Rolagem suave:** Lenis sincronizado com o relógio do GSAP (`SmoothScroll.tsx`).
+- **Hero:** título entrando palavra por palavra e ícones que seguem o mouse.
+- **Processo:** vídeo que avança com o scroll, desenhado em `<canvas>` a partir de 138 frames WebP (mais fluido que `video.currentTime`).
+- **Serviços:** cards que saem voando de um cartão de memória (desktop).
+- **Como funciona:** bento com diagramas vivos (adaptado do ink-orbit-features, do 21st.dev).
+- **Gráfico:** linhas desenhadas pelo scroll com texto embaralhado.
+- Todas respeitam `prefers-reduced-motion`.
 
-To learn more about Next.js, take a look at the following resources:
+## Pendências (aguardando a DAFA)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [ ] Arquivos das fontes **Creato Display** e **Callum IT** com licença web (hoje são Plus Jakarta Sans e Playfair Display, provisórias).
+- [ ] Logo e símbolo originais em SVG (a logo atual veio do HTML antigo; o favicon "DA" é provisório).
+- [ ] Foto profissional do Daniel.
+- [ ] Confirmar o cliente e os serviços do projeto **imobiliário** e da **fotografia**.
+- [ ] Domínio e hospedagem → definir `NEXT_PUBLIC_SITE_URL`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Para atualizar o portfólio, veja [COMO-ATUALIZAR.md](COMO-ATUALIZAR.md).
