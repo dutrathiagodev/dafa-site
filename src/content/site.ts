@@ -208,7 +208,6 @@ export type TeamMember = {
   photo?: string;
 };
 
-// TODO(DAFA): adicionar as fotos em public/media/team/ e preencher `photo`.
 export const team: TeamMember[] = [
   {
     name: "Daniel",
@@ -217,8 +216,9 @@ export const team: TeamMember[] = [
       "Daniel atua com produção audiovisual, criação e gerenciamento de conteúdo e tráfego pago. Seu trabalho une olhar criativo e estratégia para transformar ideias em vídeos, imagens e conteúdos que comuniquem a identidade e o valor de cada negócio.",
       "Com atuação em Santo Antônio da Platina e região, desenvolve projetos para empresas de diferentes segmentos, cuidando tanto da qualidade visual quanto da mensagem que cada conteúdo precisa transmitir.",
     ],
+    photo: "/media/team/daniel.webp",
   },
-  { name: "Fabiano", role: "Partner" },
+  { name: "Fabiano", role: "Partner", photo: "/media/team/fabiano.webp" },
 ];
 
 export const faq = [

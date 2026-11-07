@@ -12,7 +12,7 @@ export function PersonCard({ member }: { member: TeamMember }) {
             src={asset(member.photo)}
             alt={`${member.name}, ${member.role} da DAFA`}
             fill
-            sizes="(max-width: 640px) 90vw, 320px"
+            sizes="(max-width: 640px) 45vw, 230px"
             className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.03]"
           />
         ) : (
@@ -25,9 +25,9 @@ export function PersonCard({ member }: { member: TeamMember }) {
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
-      <figcaption className="mt-4 flex items-baseline justify-between gap-3">
-        <span className="text-xl font-semibold">{member.name}</span>
-        <span className="rounded-full border border-electric/40 bg-electric/10 px-3 py-1 text-xs font-semibold tracking-[0.15em] text-[#b8baff] uppercase">
+      <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-base font-semibold sm:text-lg">{member.name}</span>
+        <span className="rounded-full border border-electric/40 bg-electric/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.15em] text-[#b8baff] uppercase">
           {member.role}
         </span>
       </figcaption>
