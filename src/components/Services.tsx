@@ -57,68 +57,80 @@ export default function Services() {
         return { x: a.x - b.x, y: a.y - b.y };
       };
 
-      const burst = () =>
-        gsap
-          .timeline()
-          .fromTo(
-            sd,
-            { rotateY: -38, rotateX: 18, scale: 0.78 },
-            { rotateY: 0, rotateX: 0, scale: 1, duration: 0.7, ease: "power3.out" },
-          )
-          .fromTo(
-            "[data-sd] [data-sd-pin]",
-            { fill: "#d9b45a" },
-            { fill: "#5b5bff", duration: 0.2, stagger: 0.05 },
-            0.2,
-          )
-          .fromTo("[data-sd-glow]", { opacity: 0.3 }, { opacity: 1, duration: 0.4 }, 0.3)
-          .fromTo(
-            cards,
-            {
-              x: (_i: number, el: HTMLElement) => delta(el).x,
-              y: (_i: number, el: HTMLElement) => delta(el).y,
-              scale: 0.15,
-              rotation: () => gsap.utils.random(-40, 40),
-              autoAlpha: 0,
-            },
-            {
-              x: 0,
-              y: 0,
-              scale: 1,
-              rotation: 0,
-              autoAlpha: 1,
-              duration: 1.1,
-              ease: "expo.out",
-              stagger: 0.07,
-            },
-            0.55,
-          )
-          .to("[data-sd-glow]", { opacity: 0.45, duration: 0.6 }, 1.4);
+      const from = {
+        x: (_i: number, el: HTMLElement) => delta(el).x,
+        y: (_i: number, el: HTMLElement) => delta(el).y,
+        scale: 0.15,
+        rotation: () => gsap.utils.random(-40, 40),
+        autoAlpha: 0,
+      };
+
+      // Loop lento: o cartão acende, os cards saem devagar, ficam um tempo
+      // na tela e voltam para dentro. Pausa com o mouse sobre os cards.
+      let hovering = false;
+      const tl = gsap.timeline({ repeat: -1, paused: true });
+      tl.fromTo(
+        sd,
+        { rotateY: -38, rotateX: 18, scale: 0.78 },
+        { rotateY: 0, rotateX: 0, scale: 1, duration: 1.4, ease: "power3.out" },
+      )
+        .fromTo(
+          "[data-sd] [data-sd-pin]",
+          { fill: "#d9b45a" },
+          { fill: "#5b5bff", duration: 0.35, stagger: 0.12 },
+          0.3,
+        )
+        .fromTo("[data-sd-glow]", { opacity: 0.3 }, { opacity: 1, duration: 0.8 }, 0.5)
+        .fromTo(
+          cards,
+          from,
+          {
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotation: 0,
+            autoAlpha: 1,
+            duration: 2.2,
+            ease: "power3.out",
+            stagger: 0.18,
+          },
+          1,
+        )
+        .to("[data-sd-glow]", { opacity: 0.45, duration: 1.2 }, 2.4)
+        .to({}, { duration: 6 })
+        .addLabel("collect")
+        .call(() => {
+          if (hovering) tl.pause();
+        })
+        .to(cards, { ...from, rotation: 0, duration: 1.4, ease: "power3.inOut", stagger: 0.1 })
+        .to("[data-sd] [data-sd-pin]", { fill: "#d9b45a", duration: 0.4, stagger: 0.06 }, "<0.6")
+        .to({}, { duration: 0.6 });
 
       gsap.set(cards, { autoAlpha: 0 });
       ScrollTrigger.create({
         trigger: stage.current,
-        start: "top 60%",
-        once: true,
-        onEnter: () => burst(),
+        start: "top 65%",
+        end: "bottom 20%",
+        onToggle: (self) => (self.isActive ? tl.play() : tl.pause()),
       });
 
+      const grid = root.current!.querySelector<HTMLElement>("[data-services-grid]")!;
+      const onEnter = () => {
+        hovering = true;
+      };
+      const onLeave = () => {
+        hovering = false;
+        if (tl.paused() && ScrollTrigger.isInViewport(grid)) tl.play();
+      };
+      grid.addEventListener("pointerenter", onEnter);
+      grid.addEventListener("pointerleave", onLeave);
+
       // Clicar no cartão: recolhe os cards e solta de novo
-      replay.current = () =>
-        gsap
-          .timeline()
-          .to(cards, {
-            x: (_i: number, el: HTMLElement) => delta(el).x,
-            y: (_i: number, el: HTMLElement) => delta(el).y,
-            scale: 0.15,
-            autoAlpha: 0,
-            duration: 0.45,
-            ease: "power3.in",
-            stagger: 0.03,
-          })
-          .add(() => {
-            burst();
-          });
+      replay.current = () => {
+        hovering = false;
+        if (tl.time() < tl.labels.collect) tl.seek("collect");
+        tl.play();
+      };
 
       // Inclinação 3D do cartão seguindo o mouse
       const rx = gsap.quickTo(sd, "rotateX", { duration: 0.6, ease: "power3.out" });
@@ -133,7 +145,11 @@ export default function Services() {
       };
       const sec = root.current!;
       sec.addEventListener("pointermove", onMove);
-      return () => sec.removeEventListener("pointermove", onMove);
+      return () => {
+        sec.removeEventListener("pointermove", onMove);
+        grid.removeEventListener("pointerenter", onEnter);
+        grid.removeEventListener("pointerleave", onLeave);
+      };
     },
     { scope: root },
   );
@@ -182,9 +198,6 @@ export default function Services() {
               <SdCard className="h-auto w-full drop-shadow-[0_20px_40px_rgba(16,16,236,.55)]" />
             </button>
           </div>
-          <p className="mt-4 text-center text-xs text-muted/70 lg:pl-10 lg:text-left">
-            Clique no cartão
-          </p>
         </div>
 
         <ul
