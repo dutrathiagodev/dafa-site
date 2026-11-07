@@ -4,7 +4,7 @@
 
 **Site portfólio da DAFA: produção audiovisual, conteúdo e tráfego pago em Santo Antônio da Platina – PR.**
 
-[![Site](https://img.shields.io/badge/site-em_breve-1700F5?style=for-the-badge)](#publicação)
+[![Site](https://img.shields.io/badge/site-online-1700F5?style=for-the-badge)](https://dutrathiagodev.github.io/dafa-site/)
 [![Instagram](https://img.shields.io/badge/@dafa__hub-Instagram-070743?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/dafa_hub/)
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)
@@ -12,6 +12,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-3-88CE02?logo=greensock&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-0.170-000000?logo=threedotjs&logoColor=white)
 
 ![Tela principal do projeto](docs/images/tela-principal.jpg)
 
@@ -25,7 +26,7 @@ Portfólio e apresentação comercial da DAFA, empresa dos sócios Daniel e Fabi
 
 | | |
 |---|---|
-| Site publicado | Em breve (domínio e hospedagem a definir com a DAFA) |
+| Site publicado | https://dutrathiagodev.github.io/dafa-site/ |
 | Instagram da DAFA | [@dafa_hub](https://www.instagram.com/dafa_hub/) |
 | WhatsApp | [(43) 99900-1173](https://wa.me/5543999001173) |
 | Documentação | [`docs/`](docs/README.md) (PRD, código e decisões) |
@@ -95,7 +96,12 @@ A página é montada em `src/app/page.tsx`, que só compõe as seções. Os text
 
 ## Publicação
 
-Ainda não publicado. Quando o domínio for definido, configure a variável `NEXT_PUBLIC_SITE_URL` na hospedagem (por exemplo, `https://www.seudominio.com.br`); ela alimenta o canonical, o sitemap e os dados estruturados.
+O site é publicado no GitHub Pages (https://dutrathiagodev.github.io/dafa-site/) pelo workflow [`deploy.yml`](.github/workflows/deploy.yml), que roda o lint, gera o site estático e publica:
+
+- a cada push na `main`;
+- manualmente, pela aba Actions.
+
+Quando a DAFA tiver um domínio próprio, basta trocar `NEXT_PUBLIC_SITE_URL` no workflow (ou na nova hospedagem); ela alimenta o canonical, o sitemap e os dados estruturados.
 
 ## Pendências
 
@@ -103,7 +109,7 @@ Ainda não publicado. Quando o domínio for definido, configure a variável `NEX
 - [ ] Logo e símbolo originais em SVG (a logo e o favicon atuais vêm do PNG do site antigo)
 - [ ] Foto profissional do Daniel
 - [ ] Confirmar o cliente e os serviços do projeto **imobiliário** e da **fotografia**
-- [ ] Domínio e hospedagem
+- [ ] Domínio próprio (hoje o site está no GitHub Pages)
 
 ## Time
 
