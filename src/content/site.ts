@@ -23,7 +23,7 @@ export const emailUrl = `mailto:${contact.email}`;
 export const brand = {
   name: "DAFA",
   tagline: "Gerenciamento de Conteúdo",
-  title: "DAFA — Gerenciamento de Conteúdo | Portfólio",
+  title: "DAFA | Produtora Audiovisual e Gestão de Conteúdo — Santo Antônio da Platina, PR",
   description:
     "Produção audiovisual, gerenciamento de conteúdo e tráfego pago em Santo Antônio da Platina e região. Conheça os projetos da DAFA.",
   pitch:
