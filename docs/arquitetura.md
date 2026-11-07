@@ -25,6 +25,8 @@ verified_against:
 - **Tailwind CSS 4**: tokens de cor e fonte em `src/app/globals.css` (`@theme`).
 - **GSAP 3 + ScrollTrigger + @gsap/react**: animações. O registro dos plugins fica em `src/lib/gsap.ts`.
 - **Lenis**: rolagem suave, sincronizada com o relógio do GSAP.
+- **WebGL**: vídeos recortados com fundo transparente (`src/lib/alpha-video.ts`).
+- **three.js**: só a câmera 3D do hero (carregado sob demanda).
 - **lucide-react**: ícones. Os ícones de marca (WhatsApp, Instagram) ficam em `src/components/ui/brand-icons.tsx`.
 - Sem backend, sem banco e sem CMS. Todo o conteúdo editável está em `src/content/site.ts`.
 

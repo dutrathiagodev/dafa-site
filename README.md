@@ -12,6 +12,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-3-88CE02?logo=greensock&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-0.170-000000?logo=threedotjs&logoColor=white)
 
 ![Tela principal do projeto](docs/images/tela-principal.jpg)
 
@@ -32,12 +33,12 @@ Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano
 
 ## O que tem na página
 
-- **Hero** como o visor de uma câmera gravando (obturador, foco, REC), sobre uma grade animada em azul, com uma **câmera Sony ZV-E10 em 3D** (vídeo real, sólida): ela gira sozinha, você arrasta para virar para os lados e para cima/baixo, e ela inclina com o mouse. A cada duas voltas (ou ao clicar) ela se desmonta e monta de novo.
+- **Hero** como o visor de uma câmera gravando (obturador, foco, REC), sobre uma grade animada em azul, com uma **câmera Sony ZV-E10 em 3D de verdade**: você arrasta e ela gira em qualquer direção (lados, cima, baixo, diagonais). Ao clicar (ou sozinha de tempos em tempos) ela se desmonta e monta de novo.
 - **Vídeo de apresentação** tocando sozinho, com botão de som
 - **Portfólio** em formato de Reels do Instagram: passe o mouse para abrir cada reel e clique para ver com som
 - **Processo** com um vídeo que acompanha o mouse/dedo e as abas das etapas
 - **Quem somos** com Daniel (CEO) e Fabiano (Partner)
-- **Serviços** saindo de dentro de um cartão SD real da DAFA, em loop
+- **Serviços** saindo de dentro de um cartão SD real da DAFA (vídeo recortado, girando), em loop
 - **Como funciona**, um bento com diagramas animados (fluxo, formatos e calendário de pautas)
 - **Gráfico** em motion design: postar por postar → constância → constância + direção, e a curva rompe o gráfico no final
 - **Contato**, **Perguntas frequentes** e botão flutuante do WhatsApp
@@ -50,6 +51,7 @@ Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano
 - [Tailwind CSS 4](https://tailwindcss.com)
 - [GSAP 3](https://gsap.com) com ScrollTrigger, para as animações presas ao scroll
 - [Lenis](https://lenis.darkroom.engineering), para a rolagem suave
+- [three.js](https://threejs.org), para a câmera 3D do hero
 - [lucide-react](https://lucide.dev), para os ícones
 - ESLint
 
