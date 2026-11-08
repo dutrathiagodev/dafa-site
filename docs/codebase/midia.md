@@ -1,18 +1,17 @@
 ---
-title: Mídia, câmera 3D e scripts
+title: Mídia, câmera e scripts
 slug: codebase-midia
 type: codebase
 module: midia
 topic_type: reference
-summary: Onde fica cada mídia em public/media, formatos e qualidade, como funciona a câmera 3D do hero (modelo three.js + desmontagem em vídeo recortado por IA) e os scripts de preparo.
-triggers: [public/media, Camera3D, zve10.glb, model-viewer, alpha-video, zve10-desmonta, preparar-video.sh, recortar-fundo.py, asset()]
+summary: Onde fica cada mídia em public/media, formatos e qualidade, como funciona a câmera do hero (foto e vídeo reais recortados por IA) e os scripts de preparo.
+triggers: [public/media, Camera, alpha-video, zve10-desmonta, preparar-video.sh, recortar-fundo.py, asset()]
 related: [secoes.md, ../../COMO-ATUALIZAR.md]
 rag: include
 status: current
 updated_at: 2026-11-07
 verified_against:
-  - src/components/media/camera-3d/Camera3D.tsx
-  - src/components/media/camera-3d/model-viewer.ts
+  - src/components/media/camera/Camera.tsx
   - src/lib/alpha-video.ts
   - scripts/preparar-video.sh
   - scripts/recortar-fundo.py
@@ -32,24 +31,21 @@ Todo caminho de `/media` passa por `asset()` (prefixo do GitHub Pages).
 | `img/` | logo e fotos avulsas | — |
 | `sequence/` | 138 quadros do ProcessSequence | WebP 540×960 |
 | `team/` | `daniel.webp`, `fabiano.webp` | WebP 640 px |
-| `camera/` | câmera 3D do hero e cartão SD | ver abaixo |
+| `camera/` | câmera do hero e cartão SD | ver abaixo |
 
 **Qualidade é prioridade.** Nunca reduzir cor, nunca usar fundo semitransparente nas fotos de produto, nunca cortar o enquadramento dos reels.
 
-## Câmera 3D do hero (`media/camera-3d/`)
+## Câmera do hero (`media/camera/`)
 
-Arquivos em `public/media/camera/`:
+Sem 3D: só foto e vídeo reais da câmera (decisão do cliente: qualidade da câmera oficial). Arquivos em `public/media/camera/`:
 
-- `zve10.glb`: modelo 3D real da câmera, com textura (cerca de 2,9 MB, carregado só depois da página abrir). Gerado no Hunyuan3D-2.1 (Hugging Face) a partir da foto real da ZV-E10 + Sigma 16mm recortada por IA. O original está em `dafa/camera-gemini/zve10-hunyuan.glb`. O visualizador força os materiais a ficarem opacos e com as duas faces visíveis, porque modelos gerados por IA às vezes vêm com faces viradas para dentro.
 - `zve10-desmonta.mp4`: vista explodida em vídeo (abre, segura, monta). Os quadros foram recortados por IA (rembg / IS-Net, com os buracos preenchidos) e "empilhados": cor em cima, máscara embaixo. Fica com fundo transparente e a câmera 100% sólida.
-- `zve10-frente.webp`: 1º quadro recortado. Aparece na hora e é a versão parada (movimento reduzido ou sem WebGL).
+- `zve10-frente.webp`: 1º quadro recortado. Aparece na hora e é a versão parada (movimento reduzido).
 
-**Como funciona:**
-- `model-viewer.ts`: three.js com TrackballControls. Gira livre em **todos os eixos** (lados, cima/baixo, diagonais e no próprio plano), com inércia. Parado, gira sozinho. Fundo transparente, luz de estúdio com contra-luz azul. A pose inicial vem de `MODEL_POSE` (`config.ts`).
-- `Camera3D.tsx`: o clique (ou sozinho depois de 14 s sem mexer) leva o modelo de volta à frente e troca para o vídeo da desmontagem, desenhado por `src/lib/alpha-video.ts`. Se existir `modelOpen` (modelo 3D da vista explodida), ele entra no fim da ida e a câmera aberta também gira em 3D; sem ele, aberta, arrastar inclina. Outro clique monta, e no fim volta para o 3D.
-- O canvas 3D é 70% maior que a área da câmera e não recebe cliques; o arraste é lido na área da câmera. Assim o modelo nunca é cortado ao girar.
-- `scripts/otimizar-glb.py` recomprime as texturas de um GLB novo antes de colocar no site.
-- No celular o toque gira a câmera (`touch-action: none` só nessa área).
+**Como funciona (`Camera.tsx`):**
+- Mouse por cima inclina a câmera de leve em perspectiva; arrastando inclina mais; ao soltar ou sair, volta ao centro.
+- O clique (ou sozinho depois de 14 s sem mexer) toca o vídeo da desmontagem, desenhado por `src/lib/alpha-video.ts`, e para na câmera toda aberta. Outro clique monta de novo.
+- No celular o toque abre/monta e a página continua rolando normalmente.
 
 ## Cartão SD (`camera/cartao-sd.mp4`)
 

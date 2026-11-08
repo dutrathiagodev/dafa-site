@@ -16,8 +16,9 @@ const stepOf = (frame: number) =>
     processSteps.length - 1,
     Math.floor((frame / FRAME_COUNT) * processSteps.length),
   );
+// arredonda para cima: o primeiro frame cai DENTRO da etapa (com round, a etapa 5 caía na 4)
 const firstFrameOf = (step: number) =>
-  Math.round((step / processSteps.length) * FRAME_COUNT);
+  Math.ceil((step / processSteps.length) * FRAME_COUNT);
 
 /**
  * Processo interativo (sem travar o scroll):
@@ -33,6 +34,8 @@ export default function ProcessSequence() {
   const rangeRef = useRef<HTMLInputElement>(null);
   const images = useRef<HTMLImageElement[]>([]);
   const state = useRef({ frame: 0, lastDrawn: -1, lastInteract: 0, visible: false });
+  /** Etapa escolhida por clique: vale até o vídeo chegar lá (sem piscar pelas etapas do caminho). */
+  const pinned = useRef<number | null>(null);
   const [step, setStep] = useState(0);
 
   const draw = useCallback(() => {
@@ -46,19 +49,24 @@ export default function ProcessSequence() {
     s.lastDrawn = i;
     ctx.drawImage(img, 0, 0, 540, 960);
     if (rangeRef.current) rangeRef.current.value = String(Math.round(s.frame));
-    setStep(stepOf(s.frame));
+    if (pinned.current === null) setStep(stepOf(s.frame));
   }, []);
 
   const goTo = useCallback(
-    (frame: number, animate = true) => {
+    (frame: number, animate = true, pin: number | null = null) => {
       const s = state.current;
       s.lastInteract = performance.now();
+      pinned.current = pin;
+      if (pin !== null) setStep(pin);
       gsap.to(s, {
         frame: Math.max(0, Math.min(FRAME_COUNT - 1, frame)),
         duration: animate && !prefersReducedMotion() ? 0.6 : 0,
         ease: "power2.out",
         overwrite: true,
         onUpdate: draw,
+        onComplete: () => {
+          pinned.current = null;
+        },
       });
     },
     [draw],
@@ -115,6 +123,7 @@ export default function ProcessSequence() {
     const ratio = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     const s = state.current;
     s.lastInteract = performance.now();
+    pinned.current = null;
     gsap.to(s, {
       frame: ratio * (FRAME_COUNT - 1),
       duration: 0.35,
@@ -137,7 +146,6 @@ export default function ProcessSequence() {
         <div>
           <SectionHeading
             id="processo-title"
-            eyebrow="02 / Processo"
             size="sm"
             title={
               <>
@@ -157,14 +165,13 @@ export default function ProcessSequence() {
                 role="tab"
                 type="button"
                 aria-selected={step === i}
-                onClick={() => goTo(firstFrameOf(i))}
+                onClick={() => goTo(firstFrameOf(i), true, i)}
                 className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                   step === i
                     ? "border-electric bg-electric text-white shadow-[0_0_24px_-4px_#3333ff]"
                     : "border-white/12 text-muted hover:border-white/35 hover:text-ink"
                 }`}
               >
-                <span className="mr-1.5 font-mono text-[11px] opacity-70">0{i + 1}</span>
                 {s.title}
               </button>
             ))}

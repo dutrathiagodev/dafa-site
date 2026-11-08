@@ -12,7 +12,6 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-3-88CE02?logo=greensock&logoColor=white)
-![Three.js](https://img.shields.io/badge/Three.js-0.170-000000?logo=threedotjs&logoColor=white)
 
 ![Tela principal do projeto](docs/images/tela-principal.jpg)
 
@@ -33,7 +32,7 @@ Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano
 
 ## O que tem na página
 
-- **Hero** como o visor de uma câmera gravando (obturador, foco, REC), sobre uma grade animada em azul, com uma **câmera Sony ZV-E10 em 3D de verdade**: você arrasta e ela gira em qualquer direção (lados, cima, baixo, diagonais). Ao clicar (ou sozinha de tempos em tempos) ela se desmonta e monta de novo.
+- **Hero** como o visor de uma câmera gravando (obturador, foco, REC), sobre uma grade animada em azul, com a **câmera Sony ZV-E10 real** (foto e vídeo): ela inclina com o mouse. Ao clicar (ou sozinha de tempos em tempos) ela se desmonta e monta de novo.
 - **Vídeo de apresentação** tocando sozinho, com botão de som
 - **Portfólio** em formato de Reels do Instagram: passe o mouse para abrir cada reel e clique para ver com som
 - **Processo** com um vídeo que acompanha o mouse/dedo e as abas das etapas
@@ -51,7 +50,6 @@ Portfólio e apresentação comercial da DAFA, empresa de Daniel (CEO) e Fabiano
 - [Tailwind CSS 4](https://tailwindcss.com)
 - [GSAP 3](https://gsap.com) com ScrollTrigger, para as animações presas ao scroll
 - [Lenis](https://lenis.darkroom.engineering), para a rolagem suave
-- [three.js](https://threejs.org), para a câmera 3D do hero
 - [lucide-react](https://lucide.dev), para os ícones
 - ESLint
 
@@ -75,13 +73,13 @@ src/
   components/
     layout/             Header, Footer, botão flutuante do WhatsApp
     sections/           uma seção da página por arquivo
-    media/              câmera 3D do hero e modal de vídeo
+    media/              câmera do hero e modal de vídeo
     motion/             rolagem suave (e F5) e entradas dos elementos
     ui/                 peças reutilizáveis (botões, títulos, tag, cartão de pessoa, fundo em grade, bento)
   lib/                  asset(), GSAP, URL do site e dados estruturados (JSON-LD)
 public/media/
   videos/ posters/      vídeos (completo + prévia de 8 s) e capas
-  camera/               câmera 3D (giro e desmontagem) e cartão SD
+  camera/               câmera (desmontagem em vídeo) e cartão SD
   sequence/             138 frames do vídeo do processo
   team/ img/            fotos da equipe, logo e fotos
 scripts/                preparar-video.sh e recortar-fundo.py

@@ -22,6 +22,6 @@ verified_against:
 | [secoes.md](secoes.md) | Cada seção da página: o que mostra e como se comporta |
 | [componentes-ui.md](componentes-ui.md) | Peças reutilizáveis (`components/ui`, `layout`) |
 | [animacoes.md](animacoes.md) | GSAP, Lenis, entradas, regras de desempenho e movimento reduzido |
-| [midia.md](midia.md) | Formatos de vídeo e foto, câmera 3D, recorte de fundo, scripts |
+| [midia.md](midia.md) | Formatos de vídeo e foto, câmera do hero, recorte de fundo, scripts |
 | [seo.md](seo.md) | Metadados, Open Graph, JSON-LD, sitemap, robots, manifest |
 | [deploy.md](deploy.md) | Build estático, GitHub Pages, variáveis de ambiente |

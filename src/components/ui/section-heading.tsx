@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** Rótulo pequeno acima dos títulos (ex.: "01 / Portfólio"). */
+/** Rótulo pequeno acima dos títulos (opcional, sem numeração). */
 export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <p data-reveal className={`text-xs tracking-[0.3em] text-muted uppercase ${className}`}>
@@ -47,7 +47,7 @@ export function SectionHeading({
   return (
     <div className={`${center ? "text-center" : ""} ${className}`}>
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <h2 id={id} data-reveal className={`mt-4 font-bold ${sizes[size]}`}>
+      <h2 id={id} data-reveal className={`${eyebrow ? "mt-4 " : ""}font-bold ${sizes[size]}`}>
         {title}
       </h2>
       {description && (

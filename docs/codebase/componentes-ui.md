@@ -48,4 +48,4 @@ Antes de criar um elemento novo, veja se ele já existe aqui.
 
 - `MediaModalProvider` + `useMediaModal()` (`VideoModal.tsx`): abre um vídeo (com som) ou uma foto em tela cheia. Pausa a rolagem com os eventos `dafa:lock-scroll` / `dafa:unlock-scroll`.
 - `LoopVideo`: vídeo curto em loop, sem som, que toca só na tela. `alpha` desenha um vídeo empilhado (recortado) com fundo transparente.
-- `camera-3d/`: a câmera 3D do hero. `Camera3D.tsx` (componente e estados), `model-viewer.ts` (three.js, giro em todos os eixos), `config.ts` (arquivos, tempos e pose). Detalhes em [midia.md](midia.md).
+- `camera/`: a câmera do hero. `Camera.tsx` (componente e estados) e `config.ts` (arquivos e tempos). Foto e vídeo reais, sem 3D. Detalhes em [midia.md](midia.md).
