@@ -10,7 +10,6 @@ import {
   whatsappUrl,
 } from "@/content/site";
 
-import { Eyebrow } from "@/components/ui/section-heading";
 import { ButtonLink, WhatsAppButton } from "@/components/ui/button";
 
 export default function Contact() {
@@ -46,11 +45,10 @@ export default function Contact() {
     >
       <div className="relative isolate mx-auto max-w-[1320px] overflow-hidden rounded-[32px] border border-white/10 px-5 py-20 text-center sm:px-12 sm:py-28">
         <GridBackground />
-        <Eyebrow className="relative">05 / Contato</Eyebrow>
         <h2
           id="contato-title"
           data-reveal
-          className="relative mx-auto mt-5 max-w-4xl text-[clamp(2.4rem,7vw,5.5rem)] leading-[0.95] font-bold tracking-[-0.045em]"
+          className="relative mx-auto max-w-4xl text-[clamp(2.4rem,7vw,5.5rem)] leading-[0.95] font-bold tracking-[-0.045em]"
         >
           Vamos dar{" "}
           <span className="text-gradient font-display italic">direção</span>{" "}

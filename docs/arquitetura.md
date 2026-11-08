@@ -26,7 +26,6 @@ verified_against:
 - **GSAP 3 + ScrollTrigger + @gsap/react**: animações. O registro dos plugins fica em `src/lib/gsap.ts`.
 - **Lenis**: rolagem suave, sincronizada com o relógio do GSAP.
 - **WebGL**: vídeos recortados com fundo transparente (`src/lib/alpha-video.ts`).
-- **three.js**: só a câmera 3D do hero (carregado sob demanda).
 - **lucide-react**: ícones. Os ícones de marca (WhatsApp, Instagram) ficam em `src/components/ui/brand-icons.tsx`.
 - Sem backend, sem banco e sem CMS. Todo o conteúdo editável está em `src/content/site.ts`.
 
@@ -48,7 +47,7 @@ src/
 ├── components/
 │   ├── layout/     Header, Footer, WhatsAppFloat
 │   ├── sections/   uma seção da página por arquivo
-│   ├── media/      VideoModal (player em tela cheia) e camera-3d/ (câmera 3D do hero)
+│   ├── media/      VideoModal (player em tela cheia) e camera/ (câmera do hero, foto e vídeo reais)
 │   ├── motion/     SmoothScroll (Lenis + F5) e Reveals (entrada dos elementos)
 │   └── ui/         peças reutilizáveis (botões, título de seção, tag, cartão de pessoa, fundo em grade, bento)
 └── lib/            asset(), gsap, siteUrl, dados estruturados

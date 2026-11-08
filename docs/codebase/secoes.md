@@ -26,7 +26,7 @@ verified_against:
 
 | Seção | O que faz |
 |---|---|
-| **Hero** | Tela como visor de câmera gravando: obturador abrindo, título entrando em foco, HUD com REC/timecode, retícula de foco seguindo o mouse, fundo `GridBackground`. À direita, a **câmera 3D** (`media/camera-3d`): modelo 3D que gira livre em todos os eixos ao arrastar, gira sozinho parado e se desmonta (sozinho de tempos em tempos ou ao clicar). CTAs: WhatsApp e "Ver projetos". |
+| **Hero** | Tela como visor de câmera gravando: obturador abrindo, título entrando em foco, HUD com REC/timecode, retícula de foco seguindo o mouse, fundo `GridBackground`. À direita, a **câmera** (`media/camera`): foto/vídeo reais da Sony ZV-E10 que inclinam com o mouse e se desmontam em peças (sozinha de tempos em tempos ou ao clicar). CTAs: WhatsApp e "Ver projetos". |
 | **Showreel** | `dafa-chamada.mp4` toca mudo em loop, sem botão de play. O ícone de som liga e desliga o áudio. Pausa fora da tela. |
 | **Portfolio** | Galeria estilo Reels. No desktop é uma faixa de reels em 9:16: o ativo (hover/foco) abre na largura certa e os outros mostram o nome na vertical. Clique no ativo abre o vídeo com som (`VideoModal`). No celular é um carrossel com snap, e o reel ativo vem do `IntersectionObserver`. Só toca quando a seção está visível. |
 | **ProcessSequence** | 138 quadros (`media/sequence`) desenhados em `<canvas>`. Mouse/dedo sobre o vídeo controla o tempo, as abas das etapas pulam para o trecho, a barra de tempo funciona pelo teclado, e parado ele toca sozinho. |

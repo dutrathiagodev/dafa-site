@@ -166,7 +166,6 @@ export default function Services() {
         <div className="relative">
           <SectionHeading
             id="servicos-title"
-            eyebrow="04 / Serviços"
             title={
               <>
                 Tudo o que sua marca precisa <Accent>para aparecer bem.</Accent>

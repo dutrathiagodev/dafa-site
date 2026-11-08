@@ -144,7 +144,6 @@ export default function Portfolio() {
       <div className="mb-12 flex flex-col justify-between gap-6 px-4 sm:px-8 md:flex-row md:items-end">
         <SectionHeading
           id="projetos-title"
-          eyebrow="01 / Portfólio"
           size="lg"
           title={
             <>

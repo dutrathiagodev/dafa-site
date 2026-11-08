@@ -4,32 +4,27 @@ import { useEffect, useRef, useState } from "react";
 import { asset } from "@/lib/asset";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
 import { runAlphaCanvas } from "@/lib/alpha-video";
-import { CAMERA_MEDIA, CAMERA_TIMING as T, MODEL_POSE } from "./config";
-import { createModelViewer } from "./model-viewer";
+import { CAMERA_MEDIA, CAMERA_TIMING as T } from "./config";
 
 type State = "closed" | "opening" | "open" | "closing";
 
 /**
- * Câmera do hero (Sony ZV-E10 + Sigma 16mm f/1.4).
- *  - Fechada: modelo 3D real — arraste para girar em qualquer direção (lados, cima/baixo,
- *    diagonais e no próprio plano), com inércia; parada, gira sozinha.
- *  - Clique/toque (ou sozinha de tempos em tempos): volta de frente e se desmonta
- *    (vídeo recortado por IA, fundo transparente). Aberta, arrastar inclina; clique monta.
- * Sem WebGL ou com movimento reduzido, mostra a foto parada (recortada).
+ * Câmera do hero: a foto/vídeo reais da Sony ZV-E10, com fundo transparente.
+ *  - Mouse por cima ou arrastando: a câmera inclina em perspectiva e volta ao soltar.
+ *  - Clique/toque (ou sozinha de tempos em tempos): desmonta em peças (vídeo) e monta de novo.
+ * Com movimento reduzido, mostra só a foto parada.
  */
-export default function Camera3D({ className = "" }: { className?: string }) {
+export default function Camera({ className = "" }: { className?: string }) {
   const root = useRef<HTMLDivElement>(null);
+  const float = useRef<HTMLDivElement>(null);
   const tilt = useRef<HTMLDivElement>(null);
-  const gl = useRef<HTMLCanvasElement>(null);
   const vc = useRef<HTMLCanvasElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const toggleRef = useRef<() => void>(() => {});
-  const [ready3d, setReady3d] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
-    let alive = true;
     let state: State = "closed";
     let lastInput = performance.now();
     let openedAt = 0;
@@ -37,43 +32,39 @@ export default function Camera3D({ className = "" }: { className?: string }) {
     let pauseTimer = 0;
     const v = video.current!;
     const el = root.current!;
-    let viewer: Awaited<ReturnType<typeof createModelViewer>> | null = null;
+    const t = tilt.current!;
 
     const stopVideoCanvas = runAlphaCanvas(vc.current!, () => v);
 
+    const rx = gsap.quickTo(t, "rotationX", { duration: 0.6, ease: "power3.out" });
+    const ry = gsap.quickTo(t, "rotationY", { duration: 0.6, ease: "power3.out" });
+    const setTilt = (x: number, y: number, max: number) => {
+      rx(gsap.utils.clamp(-max, max, x));
+      ry(gsap.utils.clamp(-max, max, y));
+    };
+
     const open = async (auto = false) => {
-      if (state !== "closed" || !viewer || v.readyState < 2) return;
+      if (state !== "closed" || v.readyState < 2) return;
       state = "opening";
       autoOpened = auto;
-      await viewer.resetPose(0.7);
+      setTilt(0, 0, 0);
       v.currentTime = 0;
       await v.play().catch(() => {});
       setShowVideo(true);
       // garante a parada exata quando a câmera está toda aberta
       window.clearTimeout(pauseTimer);
-      pauseTimer = window.setTimeout(onOpened, (T.openAt - v.currentTime) * 1000);
+      pauseTimer = window.setTimeout(onOpened, Math.max(0, (T.openAt - v.currentTime) * 1000));
     };
-    /** Chegou toda aberta: para o vídeo e, se houver, troca para o modelo 3D aberto. */
     const onOpened = () => {
       if (state !== "opening") return;
       v.pause();
       state = "open";
       openedAt = performance.now();
-      if (viewer?.hasOpen()) {
-        viewer.setVariant("open");
-        setShowVideo(false);
-      }
     };
-    const close = async () => {
+    const close = () => {
       if (state !== "open") return;
       state = "closing";
       autoOpened = false;
-      gsap.to(tilt.current, { rotationX: 0, rotationY: 0, duration: 0.5, ease: "power2.inOut" });
-      if (viewer?.hasOpen()) {
-        // 3D aberto volta de frente e o vídeo assume a volta (montar)
-        await viewer.resetPose(0.7);
-        setShowVideo(true);
-      }
       v.currentTime = T.closeFrom;
       v.play().catch(() => {});
     };
@@ -84,7 +75,6 @@ export default function Camera3D({ className = "" }: { className?: string }) {
       if (state === "opening" && v.currentTime >= T.openAt - 0.06) onOpened();
     };
     const onEnded = () => {
-      viewer?.setVariant("closed");
       setShowVideo(false);
       state = "closed";
       lastInput = performance.now();
@@ -95,92 +85,85 @@ export default function Camera3D({ className = "" }: { className?: string }) {
     const tick = () => onTime();
     gsap.ticker.add(tick);
 
-    // abre sozinha de tempos em tempos e fecha depois de um tempo aberta
+    // abre sozinha de tempos em tempos e monta de novo depois de um tempo aberta
     const timer = window.setInterval(() => {
       const now = performance.now();
       if (state === "closed" && now - lastInput > T.autoOpenEvery * 1000) open(true);
       if (state === "open" && autoOpened && now - openedAt > T.holdOpen * 1000 && now - lastInput > 2500) close();
     }, 500);
 
-    // clique (sem arrastar) abre/monta; aberta, arrastar inclina
+    // mouse por cima inclina de leve; arrastando, inclina mais; clique sem arrastar abre/monta
     let downX = 0;
     let downY = 0;
-    let lastX = 0;
-    let lastY = 0;
     let dragging = false;
+    const aim = (e: PointerEvent, max: number) => {
+      const r = el.getBoundingClientRect();
+      const nx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+      const ny = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+      setTilt(-ny * max, nx * max, max);
+    };
     const onDown = (e: PointerEvent) => {
       dragging = true;
-      downX = lastX = e.clientX;
-      downY = lastY = e.clientY;
+      downX = e.clientX;
+      downY = e.clientY;
       lastInput = performance.now();
+      aim(e, T.maxTilt);
     };
     const onMove = (e: PointerEvent) => {
-      if (!dragging) return;
-      lastInput = performance.now();
-      if (state === "open" && !viewer?.hasOpen()) {
-        const t = tilt.current!;
-        const rx = gsap.utils.clamp(-T.maxTilt, T.maxTilt, Number(gsap.getProperty(t, "rotationX")) - (e.clientY - lastY) * 0.25);
-        const ry = gsap.utils.clamp(-T.maxTilt, T.maxTilt, Number(gsap.getProperty(t, "rotationY")) + (e.clientX - lastX) * 0.25);
-        gsap.to(t, { rotationX: rx, rotationY: ry, duration: 0.4, ease: "power3.out", overwrite: true });
+      if (dragging) {
+        lastInput = performance.now();
+        aim(e, T.maxTilt);
+      } else if (e.pointerType === "mouse" && el.matches(":hover")) {
+        lastInput = performance.now();
+        aim(e, T.hoverTilt);
       }
-      lastX = e.clientX;
-      lastY = e.clientY;
     };
     const onUp = (e: PointerEvent) => {
       if (!dragging) return;
       dragging = false;
       lastInput = performance.now();
       if (Math.hypot(e.clientX - downX, e.clientY - downY) < 6) toggle();
+      if (e.pointerType !== "mouse") setTilt(0, 0, 0);
+    };
+    const onLeave = () => {
+      if (!dragging) setTilt(0, 0, 0);
     };
     el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointerleave", onLeave);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
 
-    // carrega o vídeo e o modelo depois que a página já apareceu
-    const t = window.setTimeout(async () => {
+    // carrega o vídeo depois que a página já apareceu
+    const load = window.setTimeout(() => {
       v.src = asset(CAMERA_MEDIA.explode);
       v.load();
-      try {
-        const vw = await createModelViewer(gl.current!, asset(CAMERA_MEDIA.model), {
-          pose: MODEL_POSE,
-          input: el,
-          distance: 4.6,
-          openUrl: CAMERA_MEDIA.modelOpen ? asset(CAMERA_MEDIA.modelOpen) : null,
-          onReady: () => alive && setReady3d(true),
-        });
-        if (!alive) vw.destroy();
-        else viewer = vw;
-      } catch {
-        // sem WebGL: fica a foto parada
-      }
     }, 400);
 
-    const float = gsap.to(tilt.current!.parentElement, { y: -10, duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
+    const bob = gsap.to(float.current!, { y: -10, duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
     return () => {
-      alive = false;
-      window.clearTimeout(t);
+      window.clearTimeout(load);
       window.clearInterval(timer);
       window.clearTimeout(pauseTimer);
       gsap.ticker.remove(tick);
-      float.kill();
+      bob.kill();
       stopVideoCanvas?.();
-      viewer?.destroy();
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnded);
       el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
   }, []);
 
-  const fade = "absolute inset-0 h-full w-full transition-opacity duration-500";
+  const layer = "absolute inset-0 h-full w-full object-contain transition-opacity duration-300";
 
   return (
     <div
       ref={root}
       role="img"
-      aria-label="Câmera Sony ZV-E10 com lente Sigma 16mm f/1.4 em 3D. Arraste para girar em qualquer direção; toque para ver as peças."
+      aria-label="Câmera Sony ZV-E10 com lente Sigma 16mm f/1.4. Passe o mouse para inclinar; toque para ver as peças."
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -188,9 +171,9 @@ export default function Camera3D({ className = "" }: { className?: string }) {
           toggleRef.current();
         }
       }}
-      className={`relative cursor-grab touch-none select-none [perspective:1100px] active:cursor-grabbing ${className}`}
+      className={`relative cursor-pointer touch-pan-y select-none [perspective:1100px] ${className}`}
     >
-      <div className="relative h-full w-full">
+      <div ref={float} className="relative h-full w-full">
         <div ref={tilt} className="relative h-full w-full will-change-transform">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -200,15 +183,9 @@ export default function Camera3D({ className = "" }: { className?: string }) {
             height={720}
             fetchPriority="high"
             draggable={false}
-            className={`${fade} object-contain ${ready3d ? "opacity-0" : "opacity-100"}`}
+            className={`${layer} ${showVideo ? "opacity-0" : "opacity-100"}`}
           />
-          {/* o canvas 3D é bem maior que a área: girando, a câmera nunca é cortada */}
-          <canvas
-            ref={gl}
-            aria-hidden="true"
-            className={`pointer-events-none absolute -inset-[35%] h-[170%] w-[170%] transition-opacity duration-500 ${ready3d && !showVideo ? "opacity-100" : "opacity-0"}`}
-          />
-          <canvas ref={vc} aria-hidden="true" className={`${fade} object-contain ${showVideo ? "opacity-100" : "opacity-0"} pointer-events-none`} />
+          <canvas ref={vc} aria-hidden="true" className={`${layer} pointer-events-none ${showVideo ? "opacity-100" : "opacity-0"}`} />
         </div>
       </div>
       <video ref={video} muted playsInline preload="auto" className="pointer-events-none absolute top-0 left-0 size-px opacity-0" />

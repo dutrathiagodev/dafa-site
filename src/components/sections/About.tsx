@@ -15,7 +15,6 @@ export default function About() {
         <div>
           <SectionHeading
             id="sobre-title"
-            eyebrow="03 / Quem somos"
             size="sm"
             title={
               <>

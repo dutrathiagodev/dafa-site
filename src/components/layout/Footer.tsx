@@ -1,7 +1,6 @@
 import { asset } from "@/lib/asset";
 import Image from "next/image";
 import {
-  brand,
   contact,
   emailUrl,
   instagramUrl,
@@ -21,7 +20,7 @@ export default function Footer() {
             className="h-10 w-auto"
           />
           <p className="mt-4 max-w-xs text-sm text-muted">
-            {brand.tagline} · {contact.city} – {contact.state} e região.
+            {contact.city} – {contact.state} e região.
           </p>
         </div>
         <nav aria-label="Contatos" className="flex flex-col gap-2 text-sm text-muted sm:flex-row sm:gap-8">
